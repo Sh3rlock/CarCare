@@ -1,0 +1,243 @@
+{% extends "base_auth.html" %}
+
+{% block title %}CarCare — Your Digital Car Companion{% endblock %}
+
+{% block content %}
+<!-- ── Nav ──────────────────────────────────────────────────────────────────── -->
+<nav class="auth-nav">
+  <a href="/" class="auth-brand">
+    <span class="auth-brand-icon">🚗</span>
+    CarCare
+  </a>
+  <div class="auth-nav-links">
+    <a href="{% url 'accounts:login' %}" class="btn btn-ghost btn-sm">Bejelentkezés</a>
+    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Kezdje el</a>
+  </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
+<section class="lp-hero">
+  <div class="lp-hero-inner">
+    <div class="landing-eyebrow">
+      <i class="bi bi-stars"></i>
+      Ingyenes örökre · Nincs szükség hitelkártyára
+    </div>
+
+    <h1 class="lp-title">
+      Minden autó, ami a tulajdonodban van.<br>
+      <span>Tökéletesen szervezett.</span>
+    </h1>
+
+    <p class="lp-subtitle">
+      A CarCare a járműtulajdonosok és kis flottamenedzserek teljes körű társa.
+      Kövesse nyomon a szervizelőzményeket, az alkatrészeket, a futásteljesítményt, a biztosítást, az ügyfeleket és egyebeket —
+      mindez egyetlen tiszta műszerfalon.
+    </p>
+
+    <div class="lp-cta">
+      <a href="{% url 'accounts:register' %}" class="btn-landing-primary">
+        Kezdje el ingyen <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+      <a href="{% url 'accounts:login' %}" class="btn-landing-ghost">Jelentkezzen be</a>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="lp-stats">
+      <div class="lp-stat">
+        <span class="lp-stat-value">100%</span>
+        <span class="lp-stat-label">Örökre ingyen</span>
+      </div>
+      <div class="lp-stat-divider"></div>
+      <div class="lp-stat">
+        <span class="lp-stat-value">∞</span>
+        <span class="lp-stat-label">Járművek</span>
+      </div>
+      <div class="lp-stat-divider"></div>
+      <div class="lp-stat">
+        <span class="lp-stat-value">8+</span>
+        <span class="lp-stat-label">Modulok</span>
+      </div>
+      <div class="lp-stat-divider"></div>
+      <div class="lp-stat">
+        <span class="lp-stat-value">0</span>
+        <span class="lp-stat-label">Beállítási idő (perc)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ──────────────────────────────────────────────────────────────── -->
+<section class="lp-section">
+  <div class="lp-container">
+    <div class="lp-section-eyebrow">Minden, amire szüksége van</div>
+    <h2 class="lp-section-title">Egy hely az összes járműadat számára</h2>
+    <p class="lp-section-sub">
+      Az egyetlen családi autótól a kis flottáig a CarCare minden nyilvántartást vezet
+      szervezett és azonnal elérhető.
+    </p>
+
+    <div class="lp-features-grid">
+      <div class="lp-feature-card">
+        <div class="lp-feature-icon">🔧</div>
+        <h3 class="lp-feature-title">Szervizelőzmények</h3>
+        <p class="lp-feature-desc">Minden olajcserét, abroncsforgatást, ellenőrzést és javítást naplózzon a dátummal, a futásteljesítménnyel, a műhellyel és a költségekkel.</p>
+      </div>
+      <div class="lp-feature-card">
+        <div class="lp-feature-icon">⚙️</div>
+        <h3 class="lp-feature-title">Alkatrészek &amp; Csere</h3>
+        <p class="lp-feature-desc">Kövesse nyomon a kicserélt alkatrészeket, rögzítse a következő futásteljesítményt vagy dátumot, és kapjon értesítést a késedelemről, mielőtt valami baj történne.</p>
+      </div>
+      <div class="lp-feature-card">
+        <div class="lp-feature-icon">📊</div>
+        <h3 class="lp-feature-title">Futásnapló</h3>
+        <p class="lp-feature-desc">Vezessen teljes kilométer-számláló-történetet minden járműről. Mindig tudja, mennyit vezetett az egyes autók.</p>
+      </div>
+      <div class="lp-feature-card">
+        <div class="lp-feature-icon">🛡️</div>
+        <h3 class="lp-feature-title">Biztosítás</h3>
+        <p class="lp-feature-desc">Az üzletszabályzat részletei, a fedezet típusa, a prémium és az ügynökinformáció. Figyelmeztetéseket kaphat az irányelvek lejárta előtt.</p>
+      </div>
+      <div class="lp-feature-card">
+        <div class="lp-feature-icon">📁</div>
+        <h3 class="lp-feature-title">Dokumentumok &amp; Fényképek</h3>
+        <p class="lp-feature-desc">Töltsön fel regisztrációs papírokat, számlákat, átvizsgálási igazolásokat és járműfotókat – mindig kéznél van.</p>
+      </div>
+      <div class="lp-feature-card">
+        <div class="lp-feature-icon">🔔</div>
+        <h3 class="lp-feature-title">Emlékeztetők</h3>
+        <p class="lp-feature-desc">Állítson be dátum- vagy futásteljesítmény-alapú karbantartási emlékeztetőket, hogy semmi se csússzon ki.</p>
+      </div>
+      <div class="lp-feature-card">
+        <div class="lp-feature-icon">👤</div>
+        <h3 class="lp-feature-title">Ügyfélkezelés</h3>
+        <p class="lp-feature-desc">Kapcsolja össze a járműveket az ügyfelekkel elérhetőségi adatokkal. Tökéletes garázsok, kereskedők és flottamenedzserek számára.</p>
+      </div>
+      <div class="lp-feature-card lp-feature-card--accent">
+        <div class="lp-feature-icon">✨</div>
+        <h3 class="lp-feature-title">Egyedi modulok</h3>
+        <p class="lp-feature-desc">Készítse el saját adatszakaszait egyéni mezőkkel – pontosan az Ön munkamódszeréhez szabva.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ───────────────────────────────────────────────────────────── -->
+<section class="lp-section lp-section--alt">
+  <div class="lp-container">
+    <div class="lp-section-eyebrow">Egyszerű kialakítás</div>
+    <h2 class="lp-section-title">Percek alatt beindul</h2>
+    <p class="lp-section-sub">
+      Nincs bonyolult beépítés. Nincs elolvasható kézikönyv. Csak regisztráljon, és kezdje el hozzáadni járműveit.
+    </p>
+
+    <div class="lp-steps">
+      <div class="lp-step">
+        <div class="lp-step-number">1</div>
+        <div class="lp-step-body">
+          <h3 class="lp-step-title">Hozd létre ingyenes fiókodat</h3>
+          <p class="lp-step-desc">Regisztráljon másodpercek alatt. Nincsenek fizetési adatok, nincs próbaidőszak – csak egy ingyenes fiók, amely ingyenes marad.</p>
+        </div>
+      </div>
+      <div class="lp-step-connector"></div>
+      <div class="lp-step">
+        <div class="lp-step-number">2</div>
+        <div class="lp-step-body">
+          <h3 class="lp-step-title">Adja hozzá járműveit</h3>
+          <p class="lp-step-desc">Adja meg a márkát, modellt, évet és a legfontosabb specifikációkat. Válasszon katalógusunkból, vagy adja hozzá sajátját.</p>
+        </div>
+      </div>
+      <div class="lp-step-connector"></div>
+      <div class="lp-step">
+        <div class="lp-step-number">3</div>
+        <div class="lp-step-body">
+          <h3 class="lp-step-title">Kövesse nyomon mindent</h3>
+          <p class="lp-step-desc">Rönkölési szolgáltatások, alkatrészek, futásteljesítmény, biztosítás és dokumentumok. Teljes járműtörténete egy helyen.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Why CarCare ────────────────────────────────────────────────────────────── -->
+<section class="lp-section">
+  <div class="lp-container">
+    <div class="lp-section-eyebrow">Miért CarCare</div>
+    <h2 class="lp-section-title">Igazi járműtulajdonosok számára készült</h2>
+
+    <div class="lp-benefits">
+      <div class="lp-benefit">
+        <div class="lp-benefit-icon"><i class="bi bi-lock-fill"></i></div>
+        <h3 class="lp-benefit-title">Az Ön adatai, a magánélete</h3>
+        <p class="lp-benefit-desc">A jármű adatait csak Ön láthatja. Nincsenek hirdetések, nincs adatértékesítés, nincs harmadik fél követése.</p>
+      </div>
+      <div class="lp-benefit">
+        <div class="lp-benefit-icon"><i class="bi bi-phone-fill"></i></div>
+        <h3 class="lp-benefit-title">Minden eszközön működik</h3>
+        <p class="lp-benefit-desc">Teljesen érzékeny elrendezés – tökéletesen működik telefonján, táblagépén vagy asztali számítógépén.</p>
+      </div>
+      <div class="lp-benefit">
+        <div class="lp-benefit-icon"><i class="bi bi-sliders2"></i></div>
+        <h3 class="lp-benefit-title">Teljesen testreszabható</h3>
+        <p class="lp-benefit-desc">Rejtse el azokat a mezőket, amelyekre nincs szüksége, adjon hozzá egyéni mezőket, és építsen új adatmodulokat a munkafolyamathoz igazítva.</p>
+      </div>
+      <div class="lp-benefit">
+        <div class="lp-benefit-icon"><i class="bi bi-people-fill"></i></div>
+        <h3 class="lp-benefit-title">Flotta &amp; ügyfél készen áll</h3>
+        <p class="lp-benefit-desc">Több jármű kezelése és összekapcsolása az ügyfelekkel. Ideális kis garázsok, kereskedők és flottatulajdonosok számára.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Final CTA ──────────────────────────────────────────────────────────────── -->
+<section class="lp-cta-section">
+  <div class="lp-container lp-cta-inner">
+    <h2 class="lp-cta-title">Kezdje el járművei rendszerezését még ma</h2>
+    <p class="lp-cta-sub">Örökre ingyen. Nincs hitelkártya. Bármikor lemondhatja (bár nem akarja).</p>
+    <a href="{% url 'accounts:register' %}" class="btn-landing-primary lp-cta-btn">
+      Hozzon létre ingyenes fiókot <i class="bi bi-arrow-right ms-1"></i>
+    </a>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────────────── -->
+<footer class="lp-footer">
+  <div class="lp-container">
+    <div class="lp-footer-top">
+
+      <div class="lp-footer-brand">
+        <a href="/" class="lp-footer-logo">
+          <span class="auth-brand-icon">🚗</span>
+          CarCare
+        </a>
+        <p class="lp-footer-tagline">Az Ön digitális autós társa.<br>Ingyenes, privát, és mindig veled.</p>
+      </div>
+
+      <div class="lp-footer-links">
+        <div class="lp-footer-col">
+          <div class="lp-footer-col-title">Termék</div>
+          <a href="{% url 'accounts:register' %}">Kezdje el</a>
+          <a href="{% url 'accounts:login' %}">Bejelentkezés</a>
+        </div>
+        <div class="lp-footer-col">
+          <div class="lp-footer-col-title">Jellemzők</div>
+          <a href="{% url 'accounts:register' %}">Szervizelőzmények</a>
+          <a href="{% url 'accounts:register' %}">Biztosítás</a>
+          <a href="{% url 'accounts:register' %}">Emlékeztetők</a>
+          <a href="{% url 'accounts:register' %}">Ügyfelek</a>
+        </div>
+        <div class="lp-footer-col">
+          <div class="lp-footer-col-title">fiók</div>
+          <a href="{% url 'accounts:register' %}">Regisztráció ingyenes</a>
+          <a href="{% url 'accounts:login' %}">Jelentkezzen be</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="lp-footer-bottom">
+      <span>© 2025 CarCare. Minden jog fenntartva.</span>
+      <span>Készült <span style="color:#818CF8">♥</span> az autók szerelmeseinek mindenhol.</span>
+    </div>
+  </div>
+</footer>
+{% endblock %}

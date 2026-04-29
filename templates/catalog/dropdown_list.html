@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Catalog — Dropdowns — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-0">Katalógus</h2>
+    <p class="text-muted mb-0 mt-1">
+      {% if active_tab == "consumables" %}
+        Manage consumables used in service records.
+      {% elif active_tab == "service_types" %}
+        Manage service type options used in service records.
+      {% else %}
+        Manage dropdown options used in the vehicle form.
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item"><a class="nav-link" href="{% url 'catalog:make_list' %}">&amp; Modellek</a></li>
+  <li class="nav-item"><a class="nav-link {% if active_tab == 'dropdowns' %}active{% endif %}" href="{% url 'catalog:dropdown_list' %}">Üzemanyag típus és amp; Terjedés</a></li>
+  <li class="nav-item"><a class="nav-link {% if active_tab == 'service_types' %}active{% endif %}" href="{% url 'catalog:service_types_list' %}">Szolgáltatás típusa</a></li>
+  <li class="nav-item"><a class="nav-link {% if active_tab == 'consumables' %}active{% endif %}" href="{% url 'catalog:consumables_list' %}">Fogyóeszközök</a></li>
+</ul>
+
+{% for lst in lists %}
+<div class="card shadow-sm mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong>{{ lst.label }}</strong>
+    <a href="{% url 'catalog:dropdown_choice_add' lst.key %}" class="btn btn-sm btn-success">+ Opció hozzáadása</a>
+  </div>
+  {% if lst.choices %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Címke (megjelenik a felhasználók számára)</th>
+          <th>Érték (tárolt)</th>
+          <th class="text-center" style="width:120px">Állapot</th>
+          <th class="text-center" style="width:60px">Rendelés</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in lst.choices %}
+        <tr class="{% if not c.is_active %}table-secondary{% endif %}">
+          <td class="fw-medium {% if not c.is_active %}text-muted{% endif %}">{{ c.label }}</td>
+          <td><code class="text-secondary small">{{ c.value }}</code></td>
+          <td class="text-center">
+            {% if c.is_active %}<span class="badge bg-success">Aktív</span>
+            {% else %}<span class="badge bg-secondary">Inaktív</span>{% endif %}
+          </td>
+          <td class="text-center text-muted small">{{ c.position }}</td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'catalog:dropdown_choice_edit' lst.key c.pk %}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+            <a href="{% url 'catalog:dropdown_choice_delete' lst.key c.pk %}" class="btn btn-sm btn-outline-danger">Törlés</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body text-muted text-center py-3">
+    Még nincs lehetőség – kattintson <strong>+ Opció hozzáadása</strong> hogy hozzáadjuk az elsőt.
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Quotes — {{ vehicle }} — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{{ vehicle.get_absolute_url }}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item active">Idézetek</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h2 class="mb-0">Idézetek</h2>
+  <a href="{% url 'quotes:create' vehicle_pk=vehicle.pk %}" class="btn btn-primary">+ Árajánlat hozzáadása</a>
+</div>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body py-3">
+    <form method="get" id="quoteSearchForm">
+      <div class="vehicle-search-wrap">
+        <i class="bi bi-search"></i>
+        <input type="search"
+               id="quoteSearch"
+               name="q"
+               class="vehicle-search-box"
+               value="{{ search_query }}"
+               placeholder="Keresés címe, megjegyzések, szolgáltatás típusa, cserealkatrész, fogyóeszköz..."
+               autocomplete="off"
+               spellcheck="false">
+        <button type="button" class="search-clear-btn {% if search_query %}visible{% endif %}" id="quoteSearchClear" aria-label="Keresés törlése">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if quotes %}
+  {% if search_query %}
+    <p class="text-muted small mb-2">Eredmények a következőre: <strong>{{ search_query }}</strong></p>
+  {% endif %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="text-center" style="width: 52px;"></th>
+            <th>Dátum</th>
+            <th>Cím</th>
+            <th>Sorok</th>
+            <th>Becslés</th>
+            <th>Megjegyzések</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for quote in quotes %}
+            <tr>
+              <td class="text-center">
+                <a href="{{ quote.get_absolute_url }}" class="btn btn-sm btn-outline-primary" title="Részletek megtekintése" aria-label="Részletek megtekintése">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+              <td class="text-nowrap">{{ quote.date|date:"d M Y" }}</td>
+              <td><a href="{{ quote.get_absolute_url }}" class="text-decoration-none fw-semibold text-dark">{{ quote.title|default:"—" }}</a></td>
+              <td>{{ quote.items.count }}</td>
+              <td>{% if quote.total_estimate %}{{ quote.total_estimate }}{% else %}—{% endif %}</td>
+              <td class="small text-muted">{% if quote.notes %}{{ quote.notes|truncatechars:80 }}{% else %}—{% endif %}</td>
+              <td class="text-end text-nowrap">
+                <a href="{% url 'quotes:update' vehicle_pk=vehicle.pk pk=quote.pk %}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+                <a href="{% url 'quotes:delete' vehicle_pk=vehicle.pk pk=quote.pk %}" class="btn btn-sm btn-outline-danger ms-1">Törlés</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% else %}
+  <div class="text-center py-5">
+    {% if search_query %}
+      <p class="text-muted mb-3">No quotes found for "{{ search_query }}".</p>
+      <a href="{% url 'quotes:create' vehicle_pk=vehicle.pk %}" class="btn btn-primary">Árajánlat hozzáadása</a>
+    {% else %}
+      <p class="text-muted mb-3">Még nincs árajánlat erre a járműre.</p>
+      <a href="{% url 'quotes:create' vehicle_pk=vehicle.pk %}" class="btn btn-primary">Első árajánlat hozzáadása</a>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(függvény () {
+  var form = document.getElementById('quoteSearchForm');
+  var input = document.getElementById('quoteSearch');
+  var clearBtn = document.getElementById('quoteSearchClear');
+  if (!form || !input || !clearBtn) return;
+
+  var timeout;
+  function submitDebounced() {
+    clearTimeout(timeout);
+    timeout = setTimeout(function () {
+      form.submit();
+    }, 250);
+  }
+
+  input.addEventListener('input', function () {
+    clearBtn.classList.toggle('látható', input.value.trim().length > 0);
+    submitDebounced();
+  });
+
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    clearBtn.classList.remove('visible');
+    form.submit();
+  });
+})();
+</script>
+{% endblock %}

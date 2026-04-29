@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if object %}Alkatrészcsere szerkesztése{% else %}Alkatrészcsere hozzáadása{% endif %} — CarCare
+{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{{ vehicle.get_absolute_url }}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'parts:list' vehicle_pk=vehicle.pk %}">Alkatrészek</a></li>
+    <li class="breadcrumb-item active">{% if object %}Szerkesztés{% else %}Hozzáadás{% endif %}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-lg-8">
+    <h2 class="mb-1">{% if object %}Alkatrészcsere szerkesztése{% else %}Alkatrészcsere hozzáadása{% endif %}</h2>
+    <p class="text-muted mb-4">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</p>
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="row g-3">
+            {% if 'part_type' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.part_type.id_for_label }}">{{ form.part_type.label }}</label>
+              {{ form.part_type }}
+              {% for e in form.part_type.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            {% if 'date' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.date.id_for_label }}">{{ form.date.label }} *</label>
+              {{ form.date }}
+              {% for e in form.date.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            {% if 'part_name' not in hidden_fields %}
+            <div class="col-12">
+              <label class="form-label" for="{{ form.part_name.id_for_label }}">{{ form.part_name.label }} *</label>
+              {{ form.part_name }}
+              {% if form.part_name.help_text %}<div class="form-text">{{ form.part_name.help_text }}</div>{% endif %}
+              {% for e in form.part_name.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            {% if 'brand' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.brand.id_for_label }}">{{ form.brand.label }}</label>
+              {{ form.brand }}
+            </div>
+            {% endif %}
+            {% if 'part_number' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.part_number.id_for_label }}">{{ form.part_number.label }}</label>
+              {{ form.part_number }}
+            </div>
+            {% endif %}
+
+            {% if 'mileage_at_replacement' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.mileage_at_replacement.id_for_label }}">{{ form.mileage_at_replacement.label }}</label>
+              {{ form.mileage_at_replacement }}
+            </div>
+            {% endif %}
+            {% if 'cost' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.cost.id_for_label }}">{{ form.cost.label }}</label>
+              {{ form.cost }}
+            </div>
+            {% endif %}
+
+            {% if 'workshop' not in hidden_fields %}
+            <div class="col-12">
+              <label class="form-label" for="{{ form.workshop.id_for_label }}">{{ form.workshop.label }}</label>
+              {{ form.workshop }}
+            </div>
+            {% endif %}
+
+            {% if 'next_replacement_date' not in hidden_fields or 'next_replacement_mileage' not in hidden_fields %}
+            <div class="col-12 mt-2">
+              <p class="fw-semibold mb-2 text-muted small text-uppercase">Következő csere (opcionális)</p>
+            </div>
+            {% endif %}
+            {% if 'next_replacement_date' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.next_replacement_date.id_for_label }}">{{ form.next_replacement_date.label }}</label>
+              {{ form.next_replacement_date }}
+              {% if form.next_replacement_date.help_text %}
+                <div class="form-text">{{ form.next_replacement_date.help_text }}</div>
+              {% endif %}
+            </div>
+            {% endif %}
+            {% if 'next_replacement_mileage' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.next_replacement_mileage.id_for_label }}">{{ form.next_replacement_mileage.label }}</label>
+              {{ form.next_replacement_mileage }}
+              {% if form.next_replacement_mileage.help_text %}
+                <div class="form-text">{{ form.next_replacement_mileage.help_text }}</div>
+              {% endif %}
+            </div>
+            {% endif %}
+
+            {% if 'notes' not in hidden_fields %}
+            <div class="col-12">
+              <label class="form-label" for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+              {{ form.notes }}
+            </div>
+            {% endif %}
+
+            {% for bf in form.custom_bound_fields %}
+            <div class="col-12">
+              <label class="form-label" for="{{ bf.id_for_label }}">{{ bf.label }}{% if bf.field.required %} *{% endif %}</label>
+              {{ bf }}
+              {% for e in bf.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              {% if object %}Módosítások mentése{% else %}Alkatrész hozzáadása{% endif %}
+            </button>
+            <a href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'parts:list' vehicle_pk=vehicle.pk %}{% endif %}"
+               class="btn btn-outline-secondary">Mégse</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

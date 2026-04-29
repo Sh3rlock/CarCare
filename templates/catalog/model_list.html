@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ make.name }} Models — Catalog — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'catalog:make_list' %}">Katalógus</a></li>
+    <li class="breadcrumb-item active">{{ make.name }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">{{ make.name }} Models</h2>
+  <a href="{% url 'catalog:model_add' make.pk %}" class="btn btn-success btn-sm">+ Modell hozzáadása</a>
+</div>
+
+{% if car_models %}
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Modell neve</th>
+          <th class="text-center" style="width:120px">Állapot</th>
+          <th class="text-center" style="width:60px">Rendelés</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in car_models %}
+        <tr class="{% if not m.is_active %}table-secondary{% endif %}">
+          <td class="fw-medium {% if not m.is_active %}text-muted{% endif %}">{{ m.name }}</td>
+          <td class="text-center">
+            {% if m.is_active %}<span class="badge bg-success">Aktív</span>
+            {% else %}<span class="badge bg-secondary">Inaktív</span>{% endif %}
+          </td>
+          <td class="text-center text-muted small">{{ m.position }}</td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'catalog:model_edit' make.pk m.pk %}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+            <a href="{% url 'catalog:model_delete' make.pk m.pk %}" class="btn btn-sm btn-outline-danger">Törlés</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card shadow-sm">
+  <div class="card-body text-center text-muted py-4">
+    <p class="mb-2">No models for {{ make.name }} yet.</p>
+    <a href="{% url 'catalog:model_add' make.pk %}" class="btn btn-success btn-sm">Adja hozzá az első modellt</a>
+  </div>
+</div>
+{% endif %}
+
+<div class="mt-3">
+  <a href="{% url 'catalog:make_list' %}" class="btn btn-outline-secondary btn-sm">← Vissza (Márok).</a>
+</div>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Szerviztörténet — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+  <h2 class="mb-0">Szervizelőzmények</h2>
+</div>
+
+{% if records %}
+  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+    <div class="vehicle-search-wrap flex-grow-1">
+      <i class="bi bi-search"></i>
+      <input
+        type="search"
+        id="serviceSearch"
+        class="vehicle-search-box"
+        placeholder="Keresés jármű, tábla, dátum, megjegyzések, szolgáltatástípus, cserealkatrész szerint..."
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button class="search-clear-btn" id="searchClear" aria-label="Keresés törlése">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <span class="vehicle-search-count" id="searchCount"></span>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="text-center" style="width: 52px;"></th>
+            <th>Dátum</th>
+            <th>Jármű</th>
+            <th>Sorok</th>
+            <th>Szolgáltatástípusok</th>
+            <th>Futásteljesítmény</th>
+            <th>Teljes költség</th>
+            <th>Megjegyzések</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="serviceTableBody">
+          {% for record in records %}
+            <tr class="service-row service-row-clickable"
+                data-href="{{ record.get_absolute_url }}"
+                data-search="{{ record.date|date:'d M Y' }} {{ record.vehicle.year }} {{ record.vehicle.make }} {{ record.vehicle.model }} {{ record.vehicle.license_plate }} {{ record.notes }} {% for item in record.items.all %} {{ item.get_service_type_catalog_display }} {{ item.replacement_part }} {{ item.get_consumable_display }} {{ item.note }} {% endfor %}">
+              <td class="text-center">
+                <a href="{{ record.get_absolute_url }}" class="btn btn-sm btn-outline-primary" title="Részletek megtekintése" aria-label="Részletek megtekintése">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+              <td class="text-nowrap">{{ record.date|date:"d M Y" }}</td>
+              <td>
+                <a href="{{ record.vehicle.get_absolute_url }}" class="text-decoration-none fw-semibold text-dark">
+                  {{ record.vehicle.year }} {{ record.vehicle.make }} {{ record.vehicle.model }}
+                </a>
+                <div class="text-muted small">{{ record.vehicle.license_plate }}</div>
+              </td>
+              <td>{{ record.items.count }}</td>
+              <td class="small text-muted">
+                {% for item in record.items.all %}
+                  {{ item.get_service_type_catalog_display|default:"—" }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                  —
+                {% endfor %}
+              </td>
+              <td class="text-muted">{{ record.mileage|default:"—" }}</td>
+              <td class="text-muted">{% if record.cost %}{{ record.cost }}{% else %}—{% endif %}</td>
+              <td class="small text-muted">{% if record.notes %}{{ record.notes|truncatechars:70 }}{% else %}—{% endif %}</td>
+              <td class="text-end text-nowrap">
+                <a href="{{ record.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Megtekintés</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="search-empty" id="searchEmpty">
+    <div class="search-empty-icon"><i class="bi bi-search"></i></div>
+    <p class="mb-1 fw-semibold">Egyetlen szolgáltatás sem felel meg a keresésnek</p>
+    <p class="small">Próbáljon ki egy másik járművet, táblát, típust vagy jegyzetszöveget.</p>
+  </div>
+{% else %}
+  <div class="text-center py-5">
+    <p class="text-muted mb-3">Még nincs szolgáltatási nyilvántartás.</p>
+    <a href="{% url 'vehicles:list' %}" class="btn btn-primary">Ugrás a járművekhez</a>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if records %}
+<script>
+(függvény () {
+  var input = document.getElementById('serviceSearch');
+  var clearBtn = document.getElementById('searchClear');
+  var countEl = document.getElementById('searchCount');
+  var emptyEl = document.getElementById('searchEmpty');
+  var rows = Array.from(document.querySelectorAll('#serviceTableBody .service-row'));
+  var összesen = sorok.hossz;
+
+  függvény normalizál(ok) {
+    return (s || '').toLowerCase();
+  }
+
+  function filter() {
+    var query = input.value.trim();
+    var tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+    clearBtn.classList.toggle('látható', query.length > 0);
+
+    var látható = 0;
+    rows.forEach(function (sor) {
+      var szénakazal = normalize(row.dataset.search || '');
+      var match = tokens.every(function (t) { return szénakazal.includes(t); });
+      sor.hidden = !match;
+      if (egyezés) látható++;
+    });
+
+    if (tokens.length > 0) {
+      countEl.textContent = látható + ' / ' + összesen;
+    } másik {
+      countEl.textContent = '';
+    }
+    emptyEl.classList.toggle('látható', látható === 0 && tokens.length > 0);
+  }
+
+  input.addEventListener('input', filter);
+  rows.forEach(function (sor) {
+    row.addEventListener('kattintás', function (e) {
+      if (e.target.closest('a,button,input,select,textarea')) return;
+      var href = sor.dataset.href;
+      if (href) ablak.hely.href = href;
+    });
+  });
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    filter();
+    input.focus();
+  });
+  filter();
+})();
+</script>
+{% endif %}
+{% endblock %}

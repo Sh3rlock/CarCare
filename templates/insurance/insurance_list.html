@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Biztosítás — {{ vehicle }} — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{{ vehicle.get_absolute_url }}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item active">Biztosítás</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h2 class="mb-0">Biztosítási kötvények</h2>
+  <a href="{% url 'insurance:create' vehicle_pk=vehicle.pk %}" class="btn btn-primary">+ Kötvény hozzáadása</a>
+</div>
+
+{% if policies %}
+  <div class="row g-3">
+    {% for policy in policies %}
+      <div class="col-12">
+        <div class="card shadow-sm {% if policy.is_expiring_soon and not policy.is_expired %}border-warning{% elif policy.is_expired %}border-secondary{% endif %}">
+          <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between">
+              <div>
+                <h5 class="mb-1">
+                  <a href="{{ policy.get_absolute_url }}" class="text-decoration-none text-dark">
+                    {{ policy.provider }}
+                  </a>
+                </h5>
+                <p class="text-muted small mb-2">
+                  {{ policy.policy_number }} &middot; {{ policy.get_coverage_type_display }}
+                </p>
+              </div>
+              <div class="text-end">
+                {% if policy.is_expired %}
+                  <span class="badge bg-secondary">Lejárt</span>
+                {% elif policy.is_expiring_soon %}
+                  <span class="badge bg-warning text-dark">
+                    {{ policy.days_until_expiry }} nap múlva lejár
+                  </span>
+                {% elif policy.is_active %}
+                  <span class="badge bg-success">Aktív</span>
+                {% else %}
+                  <span class="badge bg-info text-dark">Jövőbeli</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-3 text-muted small">
+              <span>Kezdete: {{ policy.start_date|date:"d M Y" }}</span>
+              <span>Vége: <strong class="{% if policy.is_expiring_soon and not policy.is_expired %}text-warning{% elif policy.is_expired %}text-secondary{% endif %}">{{ policy.end_date|date:"d M Y" }}</strong></span>
+              {% if policy.premium %}
+                <span>{{ policy.premium }} / {{ policy.get_premium_period_display }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="card-footer bg-transparent d-flex gap-2">
+            <a href="{{ policy.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Megtekintés</a>
+            <a href="{% url 'insurance:update' vehicle_pk=vehicle.pk pk=policy.pk %}"
+               class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+            <a href="{% url 'insurance:delete' vehicle_pk=vehicle.pk pk=policy.pk %}"
+               class="btn btn-sm btn-outline-danger ms-auto">Törlés</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+{% else %}
+  <div class="text-center py-5">
+    <p class="text-muted mb-3">Még nem rögzítették a biztosítási kötvényeket.</p>
+    <a href="{% url 'insurance:create' vehicle_pk=vehicle.pk %}" class="btn btn-primary">
+      Első kötvény hozzáadása
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

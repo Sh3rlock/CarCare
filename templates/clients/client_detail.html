@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}{{ client }} — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-start justify-content-between mb-4">
+  <div>
+    <nav aria-label="zsemlemorzsa">
+      <ol class="breadcrumb mb-1">
+        <li class="breadcrumb-item"><a href="{% url 'clients:list' %}">Ügyfelek</a></li>
+        <li class="breadcrumb-item active">{{ client }}</li>
+      </ol>
+    </nav>
+    <h2 class="mb-0">{{ client }}</h2>
+    {% if client.company and client.full_name %}
+      <span class="text-muted">{{ client.company }}</span>
+    {% endif %}
+  </div>
+  <div class="detail-actions mt-2">
+    <a href="{% url 'vehicles:create' %}?client={{ client.pk }}" class="btn btn-primary detail-action-btn">+ Jármű hozzáadása</a>
+    <a href="{% url 'clients:update' client.pk %}" class="btn btn-outline-secondary detail-action-btn">Szerkesztés</a>
+    <a href="{% url 'clients:delete' client.pk %}" class="btn btn-outline-danger detail-action-btn">Törlés</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">Elérhetőségek</div>
+      <div class="card-body">
+        {% if client.email or client.phone or client.address %}
+          <dl class="row mb-0">
+            {% if client.email %}
+              <dt class="col-4">Email</dt>
+              <dd class="col-8"><a href="mailto:{{ client.email }}">{{ client.email }}</a></dd>
+            {% endif %}
+            {% if client.phone %}
+              <dt class="col-4">Telefon</dt>
+              <dd class="col-8"><a href="tel:{{ client.phone }}">{{ client.phone }}</a></dd>
+            {% endif %}
+            {% if client.address %}
+              <dt class="col-4">Cím</dt>
+              <dd class="col-8" style="white-space: pre-wrap;">{{ client.address }}</dd>
+            {% endif %}
+          </dl>
+        {% else %}
+          <p class="text-muted small mb-0">Nem rögzítették az elérhetőségeket.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if client.notes %}
+      <div class="card shadow-sm mt-3">
+        <div class="card-header fw-semibold">Megjegyzések</div>
+        <div class="card-body">
+          <p class="mb-0" style="white-space: pre-wrap;">{{ client.notes }}</p>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-7">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span class="fw-semibold">Vehicles
+          {% if vehicles %}<span class="badge bg-secondary ms-1">{{ vehicles.count }}</span>{% endif %}
+        </span>
+        <a href="{% url 'vehicles:create' %}?client={{ client.pk }}" class="btn btn-sm btn-primary">+ Jármű hozzáadása</a>
+      </div>
+      <div class="card-body p-0">
+        {% if vehicles %}
+          <ul class="list-group list-group-flush">
+            {% for vehicle in vehicles %}
+              <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                <div>
+                  <a href="{{ vehicle.get_absolute_url }}" class="text-decoration-none fw-semibold text-dark">
+                    {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+                  </a>
+                  <div class="text-muted small">{{ vehicle.license_plate }}</div>
+                </div>
+                <a href="{{ vehicle.get_absolute_url }}" class="btn btn-sm btn-outline-secondary">Megtekintés</a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="p-3 text-center text-muted small">
+            Ehhez az ügyfélhez még nincsenek kapcsolódó járművek.
+            Ügyfél hozzárendelése jármű szerkesztésekor.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="detail-actions detail-actions-bottom">
+  <a href="{% url 'clients:update' client.pk %}" class="btn btn-outline-secondary detail-action-btn">Szerkesztés</a>
+  <a href="{% url 'clients:delete' client.pk %}" class="btn btn-outline-danger detail-action-btn">Törlés</a>
+</div>
+{% endblock %}

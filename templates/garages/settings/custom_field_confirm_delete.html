@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Egyéni mező törlése — CarCare{% endblock %}
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'garages:form_fields' garage.slug form_key %}" class="btn btn-sm btn-outline-secondary">← Vissza</a>
+</div>
+<div class="card shadow-sm border-danger" style="max-width:480px">
+  <div class="card-body">
+    <h4 class="card-title text-danger">Egyéni mező törlése</h4>
+    <p>Töröl <strong>{{ object.label }}</strong> a <strong>{{ form_label }}</strong> forma?</p>
+    <form method="post" class="d-flex gap-2 mt-4">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Törlés</button>
+      <a href="{% url 'garages:form_fields' garage.slug form_key %}" class="btn btn-outline-secondary">Mégse</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

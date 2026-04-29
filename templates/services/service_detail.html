@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Szervizbejegyzés — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{{ vehicle.get_absolute_url }}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'services:list' vehicle_pk=vehicle.pk %}">Szervizelőzmények</a>
+    </li>
+    <li class="breadcrumb-item active">Részletek</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-start justify-content-between mb-4">
+  <div>
+    <h2 class="mb-1">Szervizbejegyzés</h2>
+    <p class="text-muted mb-0">{{ record.date|date:"d N Y" }}</p>
+  </div>
+  <div class="detail-actions">
+    <a href="{% url 'services:pdf' vehicle_pk=vehicle.pk pk=record.pk %}"
+       class="btn btn-outline-primary detail-action-btn">PDF létrehozása</a>
+    <a href="{% url 'services:update' vehicle_pk=vehicle.pk pk=record.pk %}"
+       class="btn btn-outline-secondary detail-action-btn">Szerkesztés</a>
+    <a href="{% url 'services:delete' vehicle_pk=vehicle.pk pk=record.pk %}"
+       class="btn btn-outline-danger detail-action-btn">Törlés</a>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-header fw-semibold">Részletek</div>
+  <div class="card-body">
+    <dl class="row mb-0">
+      <dt class="col-md-2 col-4">Dátum</dt>
+      <dd class="col-md-10 col-8">{{ record.date|date:"d N Y" }}</dd>
+
+      <dt class="col-md-2 col-4">Jármű</dt>
+      <dd class="col-md-10 col-8">
+        <a href="{{ vehicle.get_absolute_url }}">{{ vehicle }}</a>
+      </dd>
+
+      <dt class="col-md-2 col-4">Futásteljesítmény</dt>
+      <dd class="col-md-10 col-8">{% if record.mileage %}{{ record.mileage|floatformat:0 }}{% else %}—{% endif %}</dd>
+
+      <dt class="col-md-2 col-4">Teljes költség</dt>
+      <dd class="col-md-10 col-8">{% if record.cost %}{{ record.cost }}{% else %}—{% endif %}</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-header fw-semibold">Szolgáltatási sorok</div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sm mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Szolgáltatás típusa</th>
+            <th>Pótalkatrész</th>
+            <th>Alkatrész ár</th>
+            <th>Elfogyasztható</th>
+            <th>Munkaidő</th>
+            <th>Jegyzet</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in record.items.all %}
+            <tr>
+              <td>{{ item.get_service_type_catalog_display|default:"—" }}</td>
+              <td>{{ item.replacement_part|default:"—" }}</td>
+              <td>{% if item.part_price %}{{ item.part_price }}{% else %}—{% endif %}</td>
+              <td>{{ item.get_consumable_display|default:"—" }}</td>
+              <td>{% if item.work_hours %}{{ item.work_hours }}{% else %}—{% endif %}</td>
+              <td>{{ item.note|default:"—" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-muted">Ebben a szolgáltatási rekordban nincsenek sorok.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="border-top p-3 d-flex justify-content-end">
+      <div class="text-end">
+        <div class="text-muted small">Teljes költség</div>
+        <div class="fs-5 fw-semibold">
+          {% if record.cost %}{{ record.cost }}{% else %}—{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if record.notes %}
+  <div class="card shadow-sm">
+    <div class="card-header fw-semibold">Session Notes</div>
+    <div class="card-body">
+      <p class="mb-0" style="white-space: pre-wrap;">{{ record.notes }}</p>
+    </div>
+  </div>
+{% endif %}
+
+<div class="mt-4">
+  <div class="d-flex justify-content-end">
+    <div class="detail-actions detail-actions-bottom mb-3">
+      <a href="{% url 'services:pdf' vehicle_pk=vehicle.pk pk=record.pk %}"
+         class="btn btn-outline-primary detail-action-btn">PDF létrehozása</a>
+      <a href="{% url 'services:update' vehicle_pk=vehicle.pk pk=record.pk %}"
+         class="btn btn-outline-secondary detail-action-btn">Szerkesztés</a>
+      <a href="{% url 'services:delete' vehicle_pk=vehicle.pk pk=record.pk %}"
+         class="btn btn-outline-danger detail-action-btn">Törlés</a>
+    </div>
+  </div>
+  <a href="{% url 'services:list' vehicle_pk=vehicle.pk %}" class="text-muted small">
+    ← Vissza a szervizelőzményekhez
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module.name }} — {{ vehicle }} — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:detail' vehicle.pk %}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item active">{{ module.name }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-0">{{ module.name }}</h2>
+    {% if module.description %}
+      <p class="text-muted mb-0 mt-1">{{ module.description }}</p>
+    {% endif %}
+  </div>
+  <a href="{% url 'dynamic:create' vehicle_pk=vehicle.pk module_slug=module.slug %}"
+     class="btn btn-primary btn-sm">+ Bejegyzés hozzáadása</a>
+</div>
+
+{% if rows %}
+  {% if field_defs %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            {% for fd in field_defs %}<th>{{ fd.label }}</th>{% endfor %}
+            <th class="text-muted small" style="width:120px">Hozzáadva</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            {% for val in row.values %}<td>{{ val }}</td>{% endfor %}
+            <td class="text-muted small">{{ row.created_at|date:"d M Y" }}</td>
+            <td class="text-end text-nowrap">
+              <a href="{% url 'dynamic:update' vehicle_pk=vehicle.pk module_slug=module.slug pk=row.pk %}"
+                 class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+              <a href="{% url 'dynamic:delete' vehicle_pk=vehicle.pk module_slug=module.slug pk=row.pk %}"
+                 class="btn btn-sm btn-outline-danger">Törlés</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="card shadow-sm">
+    <div class="card-body text-muted text-center py-4">
+      <p class="mb-2">{{ rows|length }} record{{ rows|length|pluralize }} stored.</p>
+      <p class="small">Ehhez a modulhoz még nincs megadva mező – lépjen ide
+        <a href="{% url 'formconfig:form_list' %}">Űrlapkészítő</a> hogy adjunk hozzá néhányat.</p>
+    </div>
+  </div>
+  {% endif %}
+{% else %}
+  <div class="card shadow-sm">
+    <div class="card-body text-center text-muted py-5">
+      <p class="mb-3">No {{ module.name }} records yet.</p>
+      <a href="{% url 'dynamic:create' vehicle_pk=vehicle.pk module_slug=module.slug %}"
+         class="btn btn-primary btn-sm">Adja hozzá az első rekordot</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

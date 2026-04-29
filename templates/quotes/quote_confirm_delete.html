@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Árajánlat törlése — CarCare{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h3 class="mb-3">Idézet törlése</h3>
+        <p class="text-muted">Are you sure you want to delete this quote from {{ object.date|date:"d M Y" }}?</p>
+        <form method="post" class="d-flex gap-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Törlés</button>
+          <a href="{{ object.get_absolute_url }}" class="btn btn-outline-secondary">Mégse</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

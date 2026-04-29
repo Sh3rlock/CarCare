@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}My Vehicles — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+  <h2 class="mb-0">Saját járműveim</h2>
+  <a href="{% url 'vehicles:create' %}" class="btn btn-primary">+ Jármű hozzáadása</a>
+</div>
+
+{% if vehicles %}
+  <!-- Search bar -->
+  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+    <div class="vehicle-search-wrap flex-grow-1">
+      <i class="bi bi-search"></i>
+      <input
+        type="search"
+        id="vehicleSearch"
+        class="vehicle-search-box"
+        placeholder="Keresés márka, modell, év, lemez, szín szerint…"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button class="search-clear-btn" id="searchClear" aria-label="Keresés törlése">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <span class="vehicle-search-count" id="searchCount"></span>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-2 g-4" id="vehicleGrid">
+    {% for vehicle in vehicles %}
+      <div class="col vehicle-col" data-search="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }} {{ vehicle.license_plate }} {{ vehicle.color }} {{ vehicle.get_fuel_type_display }} {{ vehicle.get_transmission_display }} {{ vehicle.ccm }} {{ vehicle.hp }} {{ vehicle.engine_code }} {{ vehicle.get_doors_display }} {{ vehicle.get_has_ac_display }} {{ vehicle.get_drive_type_display }}">
+        <div class="card h-100 shadow-sm vehicle-card-split">
+          <div class="card-body p-0">
+            <div class="vehicle-card-main">
+              <div class="vehicle-card-content p-3">
+                <h5 class="card-title mb-1">
+                  <a href="{{ vehicle.get_absolute_url }}" class="text-decoration-none text-dark">
+                    {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+                  </a>
+                </h5>
+                <p class="text-muted small mb-3">{{ vehicle.license_plate }}</p>
+                <p class="text-muted small mb-3">
+                  VIN: {% if vehicle.vin %}<span class="vehicle-vin">{{ vehicle.vin }}</span>{% else %}—{% endif %}
+                </p>
+
+                <div class="d-flex flex-wrap gap-2 mb-0">
+                  {% if vehicle.fuel_type %}<span class="badge bg-secondary">{{ vehicle.get_fuel_type_display }}</span>{% endif %}
+                  {% if vehicle.transmission %}<span class="badge bg-secondary">{{ vehicle.get_transmission_display }}</span>{% endif %}
+                  {% if vehicle.color %}<span class="badge bg-light text-dark border">{{ vehicle.color }}</span>{% endif %}
+                  {% if vehicle.hp %}<span class="badge bg-light text-dark border">{{ vehicle.hp }} HP</span>{% endif %}
+                </div>
+              </div>
+
+              <div class="vehicle-card-media-right">
+                {% if vehicle.prefetched_images %}
+                  <img src="{{ vehicle.prefetched_images.0.image.url }}" alt="{{ vehicle }}">
+                {% else %}
+                  <div class="vehicle-card-media-placeholder">
+                    <i class="bi bi-car-front"></i>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-transparent d-flex gap-2">
+            <a href="{{ vehicle.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Megtekintés</a>
+            <a href="{% url 'vehicles:update' vehicle.pk %}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+            <a href="{% url 'services:list' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-secondary">Szervizelőzmények</a>
+            <a href="{% url 'services:create' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-primary">+ Szerviz</a>
+            <a href="{% url 'quotes:create' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-primary">+ Árajánlat</a>
+            <a href="{% url 'vehicles:delete' vehicle.pk %}"
+               class="btn btn-sm btn-outline-danger ms-auto">Törlés</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="search-empty" id="searchEmpty">
+    <div class="search-empty-icon"><i class="bi bi-search"></i></div>
+    <p class="mb-1 fw-semibold">Egyetlen jármű sem felel meg a keresésnek</p>
+    <p class="small">Próbáljon ki egy másik márkát, modellt, évet vagy rendszámot.</p>
+  </div>
+
+{% else %}
+  <div class="text-center py-5">
+    <p class="text-muted mb-3">Még nem adott hozzá járművet.</p>
+    <a href="{% url 'vehicles:create' %}" class="btn btn-primary">Első jármű hozzáadása</a>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if vehicles %}
+<script>
+(függvény () {
+  var input = document.getElementById('vehicleSearch');
+  var clearBtn = document.getElementById('searchClear');
+  var countEl = document.getElementById('searchCount');
+  var emptyEl = document.getElementById('searchEmpty');
+  var cols = Array.from(document.querySelectorAll('#vehicleGrid .vehicle-col'));
+  var összesen = cols.length;
+
+  függvény normalizál(ok) {
+    return (s || '').toLowerCase();
+  }
+
+  function filter() {
+    var query = input.value.trim();
+    var tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+
+    clearBtn.classList.toggle('látható', query.length > 0);
+
+    var látható = 0;
+    cols.forEach(function (col) {
+      var szénakazal = normalize(col.dataset.search || '');
+      var match = tokens.every(function (t) { return szénakazal.includes(t); });
+      col.classList.toggle('v-hidden', !match);
+      if (egyezés) látható++;
+    });
+
+    if (tokens.length > 0) {
+      countEl.textContent = látható + ' / ' + összesen;
+    } másik {
+      countEl.textContent = '';
+    }
+
+    emptyEl.classList.toggle('látható', látható === 0 && tokens.length > 0);
+  }
+
+  input.addEventListener('input', filter);
+
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    filter();
+    input.focus();
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

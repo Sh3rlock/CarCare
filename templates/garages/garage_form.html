@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{% if is_new %}Új garázs{% else %}Szerkesztés {{ garage.name }}{% endif %} — CarCare{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  {% if is_new %}
+    <a href="{% url 'garages:list' %}" class="btn btn-sm btn-outline-secondary">← Vissza (Garázsok).</a>
+  {% else %}
+    <a href="{% url 'garages:dashboard' garage.slug %}" class="btn btn-sm btn-outline-secondary">← Vissza ide: {{ garage.name }}</a>
+  {% endif %}
+</div>
+
+<div class="card shadow-sm" style="max-width:520px">
+  <div class="card-body">
+    <h4 class="card-title mb-4">{% if is_new %}Új garázs{% else %}Garázs szerkesztése{% endif %}</h4>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+          {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">{% if is_new %}Garázs létrehozása{% else %}Módosítások mentése{% endif %}</button>
+        {% if not is_new %}
+          <a href="{% url 'garages:dashboard' garage.slug %}" class="btn btn-outline-secondary">Mégse</a>
+          <a href="{% url 'garages:delete' garage.slug %}" class="btn btn-outline-danger ms-auto">Garázs törlése</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

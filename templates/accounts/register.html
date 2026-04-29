@@ -1,0 +1,60 @@
+{% extends "base_auth.html" %}
+
+{% block body_class %}auth-public-shell{% endblock %}
+{% block auth_layout_class %}auth-layout-light{% endblock %}
+
+{% block title %}Létrehozás Account — CarCare{% endblock %}
+
+{% block content %}
+<nav class="auth-nav auth-nav-light">
+  <a href="/" class="auth-brand auth-brand-light">
+    <span class="auth-brand-icon"><i class="bi bi-car-front"></i></span>
+    CarCare
+  </a>
+  <div class="auth-nav-links">
+    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm">Jelentkezzen be</a>
+  </div>
+</nav>
+
+<div class="auth-body auth-body-light">
+  <div class="auth-card auth-card-clean auth-register-card">
+    <h1 class="auth-card-title">Hozd létre a fiókodat</h1>
+    
+    <form method="post" novalidate class="auth-register-form">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger mb-3" role="alert">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <p class="auth-register-step-label">fiók</p>
+
+      {% for field in form %}
+        {% if field.html_name == "garage_name" %}
+          <div class="auth-register-divider" aria-hidden="true"></div>
+          <p class="auth-register-step-label">Garázs</p>
+        {% endif %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <div class="form-text">{{ field.help_text }}</div>
+          {% endif %}
+          {% for error in field.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+      <div class="d-grid mt-4">
+        <button type="submit" class="btn btn-primary">Fiók létrehozása &amp; Garázs</button>
+      </div>
+    </form>
+
+    <div class="auth-divider">vagy</div>
+    <p class="auth-footer">Már van fiókja? <a href="{% url 'accounts:login' %}">Jelentkezzen be</a></p>
+  </div>
+</div>
+{% endblock %}

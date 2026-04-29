@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Törlés {{ object.name }} — Form Builder — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'formconfig:form_list' %}">Űrlapkészítő</a></li>
+    <li class="breadcrumb-item active">Modul törlése</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-5">
+    <div class="card shadow-sm border-danger">
+      <div class="card-header bg-danger text-white fw-semibold">Egyéni modul törlése</div>
+      <div class="card-body p-4">
+        <p>Biztos, hogy törölni szeretnéd? <strong>{{ object.name }}</strong>?</p>
+        <p class="text-danger small">
+          Ezzel véglegesen törli a modult és <strong>minden rekordot</strong> alatta tárolva
+          minden járműben. Ezt nem lehet visszavonni.
+        </p>
+        <form method="post" class="d-flex gap-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Igen, törlés</button>
+          <a href="{% url 'formconfig:form_list' %}" class="btn btn-outline-secondary">Mégse</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

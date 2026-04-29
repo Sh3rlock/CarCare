@@ -1,0 +1,57 @@
+{% extends "base_auth.html" %}
+
+{% block body_class %}auth-public-shell{% endblock %}
+{% block auth_layout_class %}auth-layout-light{% endblock %}
+
+{% block title %}Log In — CarCare{% endblock %}
+
+{% block content %}
+<nav class="auth-nav auth-nav-light">
+  <a href="/" class="auth-brand auth-brand-light">
+    <span class="auth-brand-icon"><i class="bi bi-car-front"></i></span>
+    CarCare
+  </a>
+  <div class="auth-nav-links">
+    <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-sm">Hozzon létre fiókot</a>
+  </div>
+</nav>
+
+<div class="auth-body auth-body-light">
+  <section class="auth-login-clean">
+    <div class="auth-login-clean-head">
+      <h1>Isten hozott újra</h1>
+      <p>Jelentkezzen be járművek, szolgáltatások, árajánlatok és emlékeztetők kezeléséhez.</p>
+    </div>
+
+    <div class="auth-card auth-card-clean">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger mb-3">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </div>
+        {% endif %}
+
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+        <div class="d-grid mt-4">
+          <button type="submit" class="btn btn-primary">Bejelentkezés</button>
+        </div>
+      </form>
+
+      <p class="auth-footer mb-0">Még nincs fiók? <a href="{% url 'accounts:register' %}">Hozzon létre egyet ingyenesen</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

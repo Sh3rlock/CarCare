@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+{% load reminder_extras %}
+
+{% block title %}Műszerfal — CarCare{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h2 class="mb-0">Műszerfal</h2>
+    <p class="text-muted mb-0 small">Üdv újra, {{ request.user.get_full_name|default:request.user.username }}</p>
+  </div>
+  <a href="{% url 'vehicles:create' %}" class="btn btn-primary">+ Jármű hozzáadása</a>
+</div>
+
+<!-- KPI cards -->
+<div class="row g-3 mb-4">
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100 metric-card metric-indigo">
+      <div class="card-body">
+        <div class="metric-label">Járművek</div>
+        <div class="metric-value">{{ vehicle_count }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100 metric-card metric-cyan">
+      <div class="card-body">
+        <div class="metric-label">Szolgáltatási munkamenetek</div>
+        <div class="metric-value">{{ service_count }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100 metric-card metric-violet">
+      <div class="card-body">
+        <div class="metric-label">Alkatrészek naplózva</div>
+        <div class="metric-value">{{ part_count }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100 metric-card metric-amber">
+      <div class="card-body">
+        <div class="metric-label">Szolgáltatási költség összesen</div>
+        <div class="metric-value">{{ total_service_cost }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-4 mb-5">
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span class="fw-semibold">Szolgáltatási trend (az elmúlt 6 hónapban)</span>
+        <span class="badge bg-light text-dark">Szám + költség</span>
+      </div>
+      <div class="card-body">
+        {% if monthly_labels %}
+          <canvas id="serviceTrendChart" height="110"></canvas>
+        {% else %}
+          <div class="text-muted small">Még nincs elég szervizadat a trenddiagramhoz.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header fw-semibold">Legjobb szolgáltatástípusok</div>
+      <div class="card-body">
+        {% if top_service_type_labels %}
+          <canvas id="serviceTypeChart" height="190"></canvas>
+        {% else %}
+          <div class="text-muted small">Még nincsenek szolgáltatássor adatok.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Alerts section -->
+{% if all_alerts %}
+  <div class="mb-5">
+    <h5 class="text-uppercase text-muted small fw-semibold mb-3">
+      Figyelmeztetések
+      <span class="badge bg-danger ms-1">{{ all_alerts|length }}</span>
+    </h5>
+    <div class="row g-2">
+      {% for alert in all_alerts %}
+        <div class="col-12">
+          <div class="alert {% if alert.is_lejárt %}alert-danger{% elif alert.is_hamarosan %}alert-warning{% else %}alert-info{% endif %} d-flex align-items-center justify-content-between py-2 mb-0">
+            <div>
+              <strong>{{ alert.title }}</strong>
+              <span class="text-muted ms-2 small">
+                {{ alert.vehicle.make }} {{ alert.vehicle.model }}
+                &middot; {{ alert.subtitle }}
+              </span>
+            </div>
+            <div class="d-flex align-items-center gap-2 ms-3">
+              {% if alert.days is not None %}
+                {% if alert.is_lejárt %}
+                  <span class="badge bg-danger text-nowrap">{{ alert.days|abs }}d lejárt</span>
+                {% elif alert.days == 0 %}
+                  <span class="badge bg-warning text-dark">Ma</span>
+                {% else %}
+                  <span class="badge bg-secondary text-nowrap">{{ alert.days }}d</span>
+                {% endif %}
+              {% endif %}
+              <a href="{{ alert.url }}" class="btn btn-sm btn-outline-dark text-nowrap">Megtekintés</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+<!-- Vehicles section -->
+<div class="mb-5">
+  <h5 class="text-uppercase text-muted small fw-semibold mb-3">
+    Saját járműveim
+    <span class="badge bg-secondary ms-1">{{ vehicle_count }}</span>
+  </h5>
+
+  {% if enriched_vehicles %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+      {% for ev in enriched_vehicles %}
+        <div class="col">
+          <div class="card h-100 shadow-sm {% if ev.lejárt_count %}border-danger{% elif ev.hamarosan_count %}border-warning{% endif %}">
+            <div class="card-body">
+
+              <!-- Vehicle name + alert badge -->
+              <div class="d-flex align-items-start justify-content-between mb-2">
+                <h5 class="card-title mb-0">
+                  <a href="{{ ev.vehicle.get_absolute_url }}" class="text-decoration-none text-dark">
+                    {{ ev.vehicle.year }} {{ ev.vehicle.make }} {{ ev.vehicle.model }}
+                  </a>
+                </h5>
+                {% if ev.lejárt_count %}
+                  <span class="badge bg-danger ms-2">{{ ev.lejárt_count }} lejárt</span>
+                {% elif ev.hamarosan_count %}
+                  <span class="badge bg-warning text-dark ms-2">{{ ev.hamarosan_count }} hamarosan</span>
+                {% endif %}
+              </div>
+
+              <p class="text-muted small mb-3">{{ ev.vehicle.license_plate }}</p>
+
+              <!-- Key stats -->
+              <div class="d-flex flex-wrap gap-3 small mb-3">
+                {% if ev.latest_mileage %}
+                  <div>
+                    <span class="text-muted">Úthosszmérő:</span>
+                    <strong>{{ ev.latest_mileage.odometer|floatformat:0 }}</strong>
+                  </div>
+                {% endif %}
+                <div>
+                  {% if ev.active_insurance %}
+                    {% if ev.active_insurance.is_expiring_hamarosan %}
+                      <span class="badge bg-warning text-dark">
+                        Biztosítás: még {{ ev.active_insurance.days_until_expiry }} nap
+                      </span>
+                    {% else %}
+                      <span class="badge bg-success">Biztosítás aktív</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="badge bg-secondary">Nincs biztosítás</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick links -->
+            <div class="card-footer bg-transparent">
+              <div class="d-flex flex-wrap gap-2">
+                <a href="{{ ev.vehicle.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Áttekintés</a>
+                <a href="{% url 'services:list' vehicle_pk=ev.vehicle.pk %}"
+                   class="btn btn-sm btn-outline-secondary">Szolgáltatások</a>
+                <a href="{% url 'reminders:list' vehicle_pk=ev.vehicle.pk %}"
+                   class="btn btn-sm btn-outline-secondary">Emlékeztetők</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <div class="text-center py-5 border rounded bg-white">
+      <p class="text-muted mb-3">Még nem adott hozzá járművet.</p>
+      <a href="{% url 'vehicles:create' %}" class="btn btn-primary">Első jármű hozzáadása</a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Recent Activity -->
+{% if recent_services or recent_parts %}
+  <div>
+    <h5 class="text-uppercase text-muted small fw-semibold mb-3">Legutóbbi tevékenység</h5>
+    <div class="row g-4">
+
+      <!-- Recent services -->
+      {% if recent_services %}
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-header fw-semibold">Legutóbbi szolgáltatások</div>
+            <ul class="list-group list-group-flush">
+              {% for record in recent_services %}
+                <li class="list-group-item py-2">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <a href="{{ record.get_absolute_url }}" class="text-decoration-none fw-semibold text-dark small">
+                        {{ record.date|date:"d M Y" }} ({{ record.items.count }} sor)
+                      </a>
+                      <div class="text-muted small">{{ record.vehicle.make }} {{ record.vehicle.model }}</div>
+                    </div>
+                    <span class="text-muted small text-nowrap ms-2">{{ record.date|date:"d M Y" }}</span>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Recent parts -->
+      {% if recent_parts %}
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-header fw-semibold">Legutóbbi részek</div>
+            <ul class="list-group list-group-flush">
+              {% for part in recent_parts %}
+                <li class="list-group-item py-2">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <a href="{{ part.get_absolute_url }}" class="text-decoration-none fw-semibold text-dark small">
+                        {{ part.part_name }}
+                      </a>
+                      <div class="text-muted small">{{ part.vehicle.make }} {{ part.vehicle.model }}</div>
+                    </div>
+                    <div class="text-end ms-2">
+                      <span class="text-muted small text-nowrap">{{ part.date|date:"d M Y" }}</span>
+                      {% if part.is_lejárt %}
+                        <div><span class="badge bg-danger small">Lejárt</span></div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+{{ monthly_labels|json_script:"monthly-labels" }}
+{{ monthly_service_counts|json_script:"monthly-service-counts" }}
+{{ monthly_service_costs|json_script:"monthly-service-costs" }}
+{{ top_service_type_labels|json_script:"top-service-type-labels" }}
+{{ top_service_type_counts|json_script:"top-service-type-counts" }}
+<script>
+(function () {
+  var labels = JSON.parse(document.getElementById('monthly-labels').textContent || '[]');
+  var counts = JSON.parse(document.getElementById('monthly-service-counts').textContent || '[]');
+  var costs = JSON.parse(document.getElementById('monthly-service-costs').textContent || '[]');
+  var typeLabels = JSON.parse(document.getElementById('top-service-type-labels').textContent || '[]');
+  var typeCounts = JSON.parse(document.getElementById('top-service-type-counts').textContent || '[]');
+
+  var trendCanvas = document.getElementById('serviceTrendChart');
+  if (trendCanvas && labels.length) {
+    new Chart(trendCanvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            type: 'line',
+            label: 'Szervizalkalmak',
+            data: counts,
+            borderColor: '#4F46E5',
+            backgroundColor: 'rgba(79,70,229,0.2)',
+            yAxisID: 'y',
+            tension: 0.35
+          },
+          {
+            type: 'bar',
+            label: 'Költség',
+            data: costs,
+            backgroundColor: 'rgba(16,185,129,0.35)',
+            borderColor: 'rgba(16,185,129,0.8)',
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: 'Alkalmak' } },
+          y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Költség' } }
+        }
+      }
+    });
+  }
+
+  var typeCanvas = document.getElementById('serviceTypeChart');
+  if (typeCanvas && typeLabels.length) {
+    new Chart(typeCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: typeLabels,
+        datasets: [{
+          data: typeCounts,
+          backgroundColor: ['#4F46E5', '#06B6D4', '#10B981', '#F59E0B', '#F97316', '#8B5CF6'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom' } },
+        cutout: '64%'
+      }
+    });
+  }
+})();
+</script>
+{% endblock %}

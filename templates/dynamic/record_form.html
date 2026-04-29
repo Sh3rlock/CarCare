@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Bejegyzés szerkesztése{% else %}Bejegyzés hozzáadása{% endif %} — {{ module.name }} — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:detail' vehicle.pk %}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'dynamic:list' vehicle_pk=vehicle.pk module_slug=module.slug %}">{{ module.name }}</a></li>
+    <li class="breadcrumb-item active">{% if object %}Szerkesztés{% else %}Hozzáadás{% endif %}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-6">
+    <h2 class="mb-4">{% if object %}Bejegyzés szerkesztése{% else %}{{ module.name }} bejegyzés hozzáadása{% endif %}</h2>
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            {% for bf in form %}
+            <div class="col-12">
+              <label class="form-label" for="{{ bf.id_for_label }}">
+                {{ bf.label }}{% if bf.field.required %} *{% endif %}
+              </label>
+              {{ bf }}
+              {% for e in bf.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% empty %}
+            <div class="col-12">
+              <p class="text-muted small mb-0">
+                Ehhez a modulhoz még nincs megadva mező. Menj ide
+                <a href="{% url 'formconfig:form_list' %}">Űrlapkészítő</a> mezők hozzáadásához.
+              </p>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              {% if object %}Módosítások mentése{% else %}Bejegyzés hozzáadása{% endif %}
+            </button>
+            <a href="{% url 'dynamic:list' vehicle_pk=vehicle.pk module_slug=module.slug %}"
+               class="btn btn-outline-secondary">Mégse</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

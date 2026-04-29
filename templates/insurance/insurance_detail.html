@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}{{ policy.provider }} — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{{ vehicle.get_absolute_url }}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'insurance:list' vehicle_pk=vehicle.pk %}">Biztosítás</a></li>
+    <li class="breadcrumb-item active">{{ policy.provider }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-start justify-content-between mb-4">
+  <div>
+    <h2 class="mb-1">{{ policy.provider }}</h2>
+    <div class="d-flex align-items-center gap-2">
+      <span class="text-muted">{{ policy.get_coverage_type_display }}</span>
+      {% if policy.is_expired %}
+        <span class="badge bg-secondary">Lejárt</span>
+      {% elif policy.is_expiring_soon %}
+        <span class="badge bg-warning text-dark">
+          {{ policy.days_until_expiry }} nap múlva lejár
+        </span>
+      {% elif policy.is_active %}
+        <span class="badge bg-success">Aktív</span>
+      {% else %}
+        <span class="badge bg-info text-dark">Jövőbeli</span>
+      {% endif %}
+    </div>
+  </div>
+  <div class="detail-actions">
+    <a href="{% url 'insurance:update' vehicle_pk=vehicle.pk pk=policy.pk %}"
+       class="btn btn-outline-secondary detail-action-btn">Szerkesztés</a>
+    <a href="{% url 'insurance:delete' vehicle_pk=vehicle.pk pk=policy.pk %}"
+       class="btn btn-outline-danger detail-action-btn">Törlés</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">Szabályzat részletei</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-5">Szolgáltató</dt>
+          <dd class="col-7">{{ policy.provider }}</dd>
+
+          <dt class="col-5">Szabályzat sz.</dt>
+          <dd class="col-7"><code class="small">{{ policy.policy_number }}</code></dd>
+
+          <dt class="col-5">Lefedettség</dt>
+          <dd class="col-7">{{ policy.get_coverage_type_display }}</dd>
+
+          <dt class="col-5">Kezdés dátuma</dt>
+          <dd class="col-7">{{ policy.start_date|date:"d N Y" }}</dd>
+
+          <dt class="col-5">Befejezés dátuma</dt>
+          <dd class="col-7 {% if policy.is_expiring_soon and not policy.is_expired %}text-warning fw-semibold{% elif policy.is_expired %}text-secondary{% endif %}">
+            {{ policy.end_date|date:"d N Y" }}
+          </dd>
+
+          {% if policy.premium %}
+            <dt class="col-5">Prémium</dt>
+            <dd class="col-7">{{ policy.premium }} / {{ policy.get_premium_period_display }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
+
+    {% if policy.agent_name or policy.agent_phone %}
+      <div class="card shadow-sm mt-3">
+        <div class="card-header fw-semibold">Ügynök kapcsolattartó</div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            {% if policy.agent_name %}
+              <dt class="col-5">Név</dt>
+              <dd class="col-7">{{ policy.agent_name }}</dd>
+            {% endif %}
+            {% if policy.agent_phone %}
+              <dt class="col-5">Telefon</dt>
+              <dd class="col-7">
+                <a href="tel:{{ policy.agent_phone }}">{{ policy.agent_phone }}</a>
+              </dd>
+            {% endif %}
+          </dl>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if policy.notes %}
+    <div class="col-md-7">
+      <div class="card shadow-sm">
+        <div class="card-header fw-semibold">Megjegyzések</div>
+        <div class="card-body">
+          <p class="mb-0" style="white-space: pre-wrap;">{{ policy.notes }}</p>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="mt-4">
+  <div class="detail-actions detail-actions-bottom mb-3">
+    <a href="{% url 'insurance:update' vehicle_pk=vehicle.pk pk=policy.pk %}"
+       class="btn btn-outline-secondary detail-action-btn">Szerkesztés</a>
+    <a href="{% url 'insurance:delete' vehicle_pk=vehicle.pk pk=policy.pk %}"
+       class="btn btn-outline-danger detail-action-btn">Törlés</a>
+  </div>
+  <a href="{% url 'insurance:list' vehicle_pk=vehicle.pk %}" class="text-muted small">
+    ← Vissza a biztosítási kötvényekhez
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Documents & Photos — {{ vehicle }} — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{{ vehicle.get_absolute_url }}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item active">Dokumentumok és fotók</li>
+  </ol>
+</nav>
+
+<h2 class="mb-4">Dokumentumok és fotók</h2>
+
+<!-- Photos section -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h4 class="mb-0">Fényképek</h4>
+  <a href="{% url 'documents:img-upload' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-primary">
+    + Fénykép feltöltése
+  </a>
+</div>
+
+{% if images %}
+  <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-5">
+    {% for img in images %}
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <a href="{{ img.image.url }}" target="_blank" rel="noopener">
+            <img src="{{ img.image.url }}"
+                 alt="{{ img.title|default:'Vehicle photo' }}"
+                 class="card-img-top"
+                 style="height: 140px; object-fit: cover;">
+          </a>
+          <div class="card-body p-2">
+            <p class="small text-muted mb-1">{{ img.title|default:"—" }}</p>
+            <p class="small text-muted mb-2">{{ img.uploaded_at|date:"d M Y" }}</p>
+            <a href="{{ img.get_delete_url }}"
+               class="btn btn-sm btn-outline-danger w-100">Törlés</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-muted mb-5">Még nincsenek feltöltve fényképek.</p>
+{% endif %}
+
+<!-- Documents section -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h4 class="mb-0">Dokumentumok</h4>
+  <a href="{% url 'documents:doc-upload' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-primary">
+    + Dokumentum feltöltése
+  </a>
+</div>
+
+{% if documents %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Cím</th>
+            <th>Írja be</th>
+            <th>Fájl</th>
+            <th>Megjegyzések</th>
+            <th>Feltöltve</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in documents %}
+            <tr>
+              <td class="fw-semibold">{{ doc.title }}</td>
+              <td>
+                <span class="badge bg-secondary">{{ doc.get_doc_type_display }}</span>
+              </td>
+              <td>
+                <a href="{{ doc.file.url }}" target="_blank" rel="noopener"
+                   class="text-decoration-none small">
+                  {{ doc.filename }}
+                  <span class="text-muted">.{{ doc.extension }}</span>
+                </a>
+              </td>
+              <td class="text-muted small">{{ doc.notes|default:"—" }}</td>
+              <td class="text-muted small text-nowrap">{{ doc.uploaded_at|date:"d M Y" }}</td>
+              <td class="text-end">
+                <a href="{{ doc.get_delete_url }}"
+                   class="btn btn-sm btn-outline-danger">Törlés</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% else %}
+  <p class="text-muted">Még nincsenek feltöltött dokumentumok.</p>
+{% endif %}
+
+{% endblock %}

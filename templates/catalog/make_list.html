@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Catalog — Car Makes — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-0">Katalógus</h2>
+    <p class="text-muted mb-0 mt-1">A járműűrlapon használt márkák, modellek és legördülő opciók kezelése.</p>
+  </div>
+  <a href="{% url 'catalog:make_add' %}" class="btn btn-success btn-sm">+ Készlet hozzáadása</a>
+</div>
+
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item"><a class="nav-link active" href="{% url 'catalog:make_list' %}">&amp; Modellek</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'catalog:dropdown_list' %}">Üzemanyag típus és amp; Terjedés</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'catalog:service_types_list' %}">Szolgáltatás típusa</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'catalog:consumables_list' %}">Fogyóeszközök</a></li>
+</ul>
+
+{% if makes %}
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Gyártmány / Márka</th>
+          <th class="text-center">Modellek</th>
+          <th class="text-center" style="width:120px">Állapot</th>
+          <th class="text-center" style="width:60px">Rendelés</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for make in makes %}
+        <tr class="{% if not make.is_active %}table-secondary{% endif %}">
+          <td>
+            <a href="{% url 'catalog:model_list' make.pk %}" class="fw-semibold text-decoration-none {% if not make.is_active %}text-muted{% endif %}">
+              {{ make.name }}
+            </a>
+          </td>
+          <td class="text-center">
+            <a href="{% url 'catalog:model_list' make.pk %}" class="text-decoration-none">
+              {{ make.car_models.count }}
+            </a>
+          </td>
+          <td class="text-center">
+            {% if make.is_active %}
+              <span class="badge bg-success">Aktív</span>
+            {% else %}
+              <span class="badge bg-secondary">Inaktív</span>
+            {% endif %}
+          </td>
+          <td class="text-center text-muted small">{{ make.position }}</td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'catalog:model_list' make.pk %}" class="btn btn-sm btn-outline-primary">Modellek</a>
+            <a href="{% url 'catalog:make_edit' make.pk %}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+            <a href="{% url 'catalog:make_delete' make.pk %}" class="btn btn-sm btn-outline-danger">Törlés</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card shadow-sm">
+  <div class="card-body text-center text-muted py-5">
+    <p class="mb-3">Még nem gyártott autót.</p>
+    <a href="{% url 'catalog:make_add' %}" class="btn btn-success btn-sm">Adja hozzá az első gyártmányt</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

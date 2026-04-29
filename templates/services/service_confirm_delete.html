@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Törlés Szervizbejegyzés — CarCare{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-danger">
+      <div class="card-header bg-danger text-white fw-semibold">Erősítse meg a Törlést</div>
+      <div class="card-body p-4">
+        <p class="mb-1">Törölni készül ezt a szolgáltatási rekordot:</p>
+        <p class="fw-bold fs-5 mb-1">{{ record }}</p>
+        <p class="text-muted small mb-4">Vehicle: {{ vehicle }}</p>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Igen, töröld</button>
+            <a href="{{ record.get_absolute_url }}" class="btn btn-outline-secondary">Mégse</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

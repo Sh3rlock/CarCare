@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ garage.name }} — Beállítások — CarCare{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'garages:dashboard' garage.slug %}" class="text-muted small text-decoration-none">← {{ garage.name }}</a>
+  <h2 class="mb-0 mt-1">Beállítások elemre</h2>
+  <p class="text-muted small">Űrlapok és modulok testreszabása kifejezetten ehhez <strong>{{ garage.name }}</strong>. Ezek a beállítások felülírják a globális alapértelmezéseket.</p>
+</div>
+
+<!-- Modules -->
+<h5 class="mt-4 mb-3">Beépített modulok</h5>
+<div class="card shadow-sm mb-4">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <tbody>
+        {% for mod in modules_info %}
+        <tr>
+          <td class="fw-semibold">{{ mod.label }}</td>
+          <td>
+            {% if mod.is_enabled %}
+              <span class="badge bg-success">Engedélyezve</span>
+            {% else %}
+              <span class="badge bg-secondary">Letiltva</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <form method="post" action="{% url 'garages:toggle_module' garage.slug mod.key %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-secondary">
+                {% if mod.is_enabled %}Disable{% else %}Enable{% endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Forms -->
+<h5 class="mt-4 mb-3">Űrlap konfigurációja</h5>
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 mb-4">
+  {% for form in forms_info %}
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title mb-1">{{ form.label }}</h6>
+        <div class="text-muted small">
+          {% if form.hidden_count %}{{ form.hidden_count }} hidden field{{ form.hidden_count|pluralize }}{% endif %}
+          {% if form.custom_count %}&nbsp;&middot;&nbsp;{{ form.custom_count }} custom field{{ form.custom_count|pluralize }}{% endif %}
+          {% if not form.hidden_count and not form.custom_count %}Using global defaults{% endif %}
+        </div>
+      </div>
+      <div class="card-footer bg-transparent">
+        <a href="{% url 'garages:form_fields' garage.slug form.key %}" class="btn btn-sm btn-outline-primary">Konfigurálás</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Dynamic modules -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h5 class="mb-0">Egyedi modulok</h5>
+  <a href="{% url 'garages:dynamic_module_create' garage.slug %}" class="btn btn-sm btn-primary">+ Modul hozzáadása</a>
+</div>
+
+{% if dynamic_modules %}
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr><th>Modul</th><th>Állapot</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for dm in dynamic_modules %}
+        <tr>
+          <td class="fw-semibold">{{ dm.name }}</td>
+          <td>
+            {% if dm.is_enabled %}<span class="badge bg-success">Engedélyezve</span>
+            {% else %}<span class="badge bg-secondary">Letiltva</span>{% endif %}
+          </td>
+          <td class="text-end">
+            <div class="d-flex gap-1 justify-content-end">
+              <a href="{% url 'garages:dynamic_module_fields' garage.slug dm.pk %}" class="btn btn-sm btn-outline-secondary">Mezők</a>
+              <a href="{% url 'garages:dynamic_module_update' garage.slug dm.pk %}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+              <form method="post" action="{% url 'garages:toggle_dynamic_module' garage.slug dm.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                  {% if dm.is_enabled %}Disable{% else %}Enable{% endif %}
+                </button>
+              </form>
+              <a href="{% url 'garages:dynamic_module_delete' garage.slug dm.pk %}" class="btn btn-sm btn-outline-danger">Törlés</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+  <p class="text-muted small">Ehhez a garázshoz még nincsenek egyedi modulok.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ garage.name }} — Vehicles — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+  <div>
+    <a href="{% url 'garages:dashboard' garage.slug %}" class="text-muted small text-decoration-none">← {{ garage.name }}</a>
+    <h2 class="mb-0 mt-1">Járművek</h2>
+  </div>
+</div>
+
+{% if vehicles %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    {% for vehicle in vehicles %}
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-1">
+              <a href="{{ vehicle.get_absolute_url }}" class="text-decoration-none text-dark">
+                {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+              </a>
+            </h5>
+            <p class="text-muted small mb-2">{{ vehicle.license_plate }}</p>
+            {% if vehicle.client %}
+              <p class="small mb-2"><i class="bi bi-person me-1"></i>{{ vehicle.client }}</p>
+            {% endif %}
+            <div class="d-flex flex-wrap gap-2">
+              {% if vehicle.fuel_type %}<span class="badge bg-secondary">{{ vehicle.get_fuel_type_display }}</span>{% endif %}
+              {% if vehicle.color %}<span class="badge bg-light text-dark border">{{ vehicle.color }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="card-footer bg-transparent d-flex gap-2">
+            <a href="{{ vehicle.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Megtekintés</a>
+            <span class="ms-auto text-muted small d-flex align-items-center">
+              <i class="bi bi-person-fill me-1"></i>{{ vehicle.owner.username }}
+            </span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="text-center py-5">
+    <p class="text-muted">Ehhez a garázshoz még nem rendeltek járművet.</p>
+  </div>
+{% endif %}
+{% endblock %}

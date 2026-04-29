@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load reminder_extras %}
+
+{% block title %}Emlékeztetők — {{ vehicle }} — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{{ vehicle.get_absolute_url }}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item active">Emlékeztetők</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h2 class="mb-0">Emlékeztetők</h2>
+  <a href="{% url 'reminders:create' vehicle_pk=vehicle.pk %}" class="btn btn-primary">+ Emlékeztető hozzáadása</a>
+</div>
+
+<!-- Automatic Alerts -->
+{% if smart_alerts %}
+  <h5 class="text-muted text-uppercase small fw-semibold mb-3">Automatikus riasztások</h5>
+  <div class="row g-2 mb-5">
+    {% for alert in smart_alerts %}
+      <div class="col-12">
+        <div class="alert {% if alert.is_overdue %}alert-danger{% elif alert.is_soon %}alert-warning{% else %}alert-info{% endif %} d-flex align-items-center justify-content-between mb-0 py-2">
+          <div>
+            <strong>{{ alert.title }}</strong>
+            <span class="text-muted ms-2 small">{{ alert.subtitle }}</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            {% if alert.is_overdue %}
+              <span class="badge bg-danger">{{ alert.days|abs }} napja lejárt</span>
+            {% elif alert.days == 0 %}
+              <span class="badge bg-warning text-dark">Ma esedékes</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ alert.days }} nap</span>
+            {% endif %}
+            <a href="{{ alert.url }}" class="btn btn-sm btn-outline-dark">Megtekintés</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- Manual Reminders -->
+<h5 class="text-muted text-uppercase small fw-semibold mb-3">Emlékeztetõim</h5>
+
+{% if reminders %}
+  <div class="row g-2">
+    {% for reminder in reminders %}
+      <div class="col-12">
+        <div class="card shadow-sm {% if reminder.is_done %}opacity-50{% elif reminder.is_overdue %}border-danger{% elif reminder.is_due_soon %}border-warning{% endif %}">
+          <div class="card-body py-2 px-3 d-flex align-items-center gap-3">
+
+            <!-- Toggle checkbox -->
+            <form method="post" action="{{ reminder.get_toggle_url }}">
+              {% csrf_token %}
+              <button type="submit"
+                      class="btn btn-sm {% if reminder.is_done %}btn-success{% else %}btn-outline-secondary{% endif %} rounded-circle"
+                      style="width:32px; height:32px; padding:0;"
+                      title="{% if reminder.is_done %}Jelölés nincs készre{% else %}Jelölés készre{% endif %}">
+                {% if reminder.is_done %}✓{% else %}&nbsp;{% endif %}
+              </button>
+            </form>
+
+            <!-- Content -->
+            <div class="flex-grow-1">
+              <span class="fw-semibold {% if reminder.is_done %}text-decoration-line-through text-muted{% endif %}">
+                {{ reminder.title }}
+              </span>
+              {% if reminder.notes %}
+                <span class="text-muted small ms-2">{{ reminder.notes }}</span>
+              {% endif %}
+            </div>
+
+            <!-- Due info -->
+            <div class="text-end text-nowrap">
+              {% if reminder.due_date %}
+                {% if reminder.is_overdue %}
+                  <span class="badge bg-danger">
+                    {{ reminder.days_until_due|abs }} napja lejárt
+                  </span>
+                {% elif reminder.is_due_soon %}
+                  <span class="badge bg-warning text-dark">
+                    {% if reminder.days_until_due == 0 %}Ma{% else %}{{ reminder.days_until_due }} nap{% endif %}
+                  </span>
+                {% else %}
+                  <span class="text-muted small">{{ reminder.due_date|date:"d M Y" }}</span>
+                {% endif %}
+              {% endif %}
+              {% if reminder.due_mileage %}
+                <span class="text-muted small ms-1">{{ reminder.due_mileage|floatformat:0 }} km-nél</span>
+              {% endif %}
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-1">
+              <a href="{{ reminder.get_edit_url }}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+              <a href="{{ reminder.get_delete_url }}" class="btn btn-sm btn-outline-danger">Törlés</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+{% else %}
+  <div class="text-center py-4">
+    <p class="text-muted mb-3">Még nincsenek kézi emlékeztetők.</p>
+    <a href="{% url 'reminders:create' vehicle_pk=vehicle.pk %}" class="btn btn-outline-primary">
+      Adja hozzá az első emlékeztetőt
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

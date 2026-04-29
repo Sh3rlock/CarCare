@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if object %}Emlékeztető szerkesztése{% else %}Emlékeztető hozzáadása{% endif %} — CarCare
+{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{{ vehicle.get_absolute_url }}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'reminders:list' vehicle_pk=vehicle.pk %}">Emlékeztetők</a>
+    </li>
+    <li class="breadcrumb-item active">{% if object %}Szerkesztés{% else %}Hozzáadás{% endif %}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-5">
+    <h2 class="mb-1">{% if object %}Emlékeztető szerkesztése{% else %}Emlékeztető hozzáadása{% endif %}</h2>
+    <p class="text-muted mb-4">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</p>
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="row g-3">
+            {% if 'title' not in hidden_fields %}
+            <div class="col-12">
+              <label class="form-label" for="{{ form.title.id_for_label }}">{{ form.title.label }} *</label>
+              {{ form.title }}
+              {% for e in form.title.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            {% if 'due_date' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.due_date.id_for_label }}">{{ form.due_date.label }}</label>
+              {{ form.due_date }}
+            </div>
+            {% endif %}
+            {% if 'due_mileage' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.due_mileage.id_for_label }}">{{ form.due_mileage.label }}</label>
+              {{ form.due_mileage }}
+            </div>
+            {% endif %}
+            {% if 'notes' not in hidden_fields %}
+            <div class="col-12">
+              <label class="form-label" for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+              {{ form.notes }}
+            </div>
+            {% endif %}
+
+            {% for bf in form.custom_bound_fields %}
+            <div class="col-12">
+              <label class="form-label" for="{{ bf.id_for_label }}">{{ bf.label }}{% if bf.field.required %} *{% endif %}</label>
+              {{ bf }}
+              {% for e in bf.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              {% if object %}Módosítások mentése{% else %}Emlékeztető hozzáadása{% endif %}
+            </button>
+            <a href="{% url 'reminders:list' vehicle_pk=vehicle.pk %}"
+               class="btn btn-outline-secondary">Mégse</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

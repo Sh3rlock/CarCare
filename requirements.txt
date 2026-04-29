@@ -1,0 +1,12 @@
+# Core
+Django>=5.0,<6.0
+psycopg2-binary>=2.9
+python-dotenv>=1.0
+
+# Media
+Pillow>=10.0
+reportlab>=4.4.10
+
+# Production serving
+gunicorn>=21.0
+whitenoise>=6.7

@@ -1,0 +1,566 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if object %}Szerkesztés {{ object.make }} {{ object.model }}{% else %}Hozzáadás Vehicle{% endif %} — CarCare{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <nav aria-label="zsemlemorzsa" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+        {% if object %}
+          <li class="breadcrumb-item">
+            <a href="{{ object.get_absolute_url }}">{{ object.make }} {{ object.model }}</a>
+          </li>
+          <li class="breadcrumb-item active">Szerkesztés</li>
+        {% else %}
+          <li class="breadcrumb-item active">Jármű hozzáadása</li>
+        {% endif %}
+      </ol>
+    </nav>
+
+    <h2 class="mb-4">
+      {% if object %}Szerkesztés Vehicle{% else %}Jármű Hozzáadása{% endif %}
+    </h2>
+
+    <div class="card shadow-sm form-modern">
+      <div class="card-body p-4">
+        <form method="post" novalidate id="vehicleForm" class="vehicle-form-modern">
+          {% csrf_token %}
+
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="form-section-title">Identitás</div>
+            </div>
+
+            {% if 'client' not in hidden_fields and 'client' in form.fields %}
+            <div class="col-12">
+              <label class="form-label" for="{{ form.client.id_for_label }}">{{ form.client.label }}</label>
+              <div class="input-group">
+                {{ form.client }}
+                <button type="button" class="btn btn-outline-secondary"
+                        data-bs-toggle="modal" data-bs-target="#clientModal" title="Új ügyfél hozzáadása">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+              </div>
+              {% for e in form.client.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            {% if 'make' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.make.id_for_label }}">{{ form.make.label }} *</label>
+              <div class="input-group">
+                {{ form.make }}
+                <button type="button" class="btn btn-outline-secondary"
+                        data-bs-toggle="modal" data-bs-target="#makeModal" title="Új gyártmány hozzáadása">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+              </div>
+              {% for e in form.make.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            {% if 'model' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.model.id_for_label }}">{{ form.model.label }} *</label>
+              <div class="input-group">
+                {{ form.model }}
+                <button type="button" class="btn btn-outline-secondary"
+                        data-bs-toggle="modal" data-bs-target="#modelModal" title="Új modell hozzáadása">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+              </div>
+              {% for e in form.model.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="col-12 mt-1">
+              <div class="form-section-title">Bejegyzés</div>
+            </div>
+
+            {% if 'year' not in hidden_fields %}
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.year.id_for_label }}">{{ form.year.label }} *</label>
+              {{ form.year }}
+              {% for e in form.year.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            {% if 'license_plate' not in hidden_fields %}
+            <div class="col-md-8">
+              <label class="form-label" for="{{ form.license_plate.id_for_label }}">{{ form.license_plate.label }} *</label>
+              {{ form.license_plate }}
+              {% for e in form.license_plate.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="col-12 mt-1">
+              <div class="form-section-title">Műszaki adatok</div>
+            </div>
+
+            {% if 'fuel_type' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.fuel_type.id_for_label }}">{{ form.fuel_type.label }}</label>
+              {{ form.fuel_type }}
+              {% for e in form.fuel_type.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            {% if 'transmission' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.transmission.id_for_label }}">{{ form.transmission.label }}</label>
+              {{ form.transmission }}
+              {% for e in form.transmission.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            {% if 'color' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.color.id_for_label }}">{{ form.color.label }}</label>
+              {{ form.color }}
+            </div>
+            {% endif %}
+
+            {% if 'ccm' not in hidden_fields %}
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.ccm.id_for_label }}">{{ form.ccm.label }}</label>
+              {{ form.ccm }}
+              {% for e in form.ccm.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            {% if 'hp' not in hidden_fields %}
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.hp.id_for_label }}">{{ form.hp.label }}</label>
+              {{ form.hp }}
+              {% for e in form.hp.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            {% if 'engine_code' not in hidden_fields %}
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.engine_code.id_for_label }}">{{ form.engine_code.label }}</label>
+              {{ form.engine_code }}
+              {% for e in form.engine_code.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            {% if 'doors' not in hidden_fields %}
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.doors.id_for_label }}">{{ form.doors.label }}</label>
+              {{ form.doors }}
+              {% for e in form.doors.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            {% if 'has_ac' not in hidden_fields %}
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.has_ac.id_for_label }}">{{ form.has_ac.label }}</label>
+              {{ form.has_ac }}
+              {% for e in form.has_ac.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            {% if 'drive_type' not in hidden_fields %}
+            <div class="col-md-4">
+              <label class="form-label" for="{{ form.drive_type.id_for_label }}">{{ form.drive_type.label }}</label>
+              {{ form.drive_type }}
+              {% for e in form.drive_type.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="col-12 mt-1">
+              <div class="form-section-title">További részletek</div>
+            </div>
+
+            {% if 'vin' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.vin.id_for_label }}">{{ form.vin.label }}</label>
+              {{ form.vin }}
+              {% if form.vin.help_text %}
+                <div class="form-text">{{ form.vin.help_text }}</div>
+              {% endif %}
+              {% for e in form.vin.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            {% if 'notes' not in hidden_fields %}
+            <div class="col-12">
+              <label class="form-label" for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+              {{ form.notes }}
+            </div>
+            {% endif %}
+
+            {% for bf in form.custom_bound_fields %}
+            <div class="col-12">
+              <label class="form-label" for="{{ bf.id_for_label }}">{{ bf.label }}{% if bf.field.required %} *{% endif %}</label>
+              {{ bf }}
+              {% for e in bf.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              {% if object %}Módosítások mentése{% else %}Hozzáadás{% endif %}
+            </button>
+            <a href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'vehicles:list' %}{% endif %}"
+               class="btn btn-outline-secondary">Mégse</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4 form-side-offset">
+    <div class="card shadow-sm form-side-card mb-3">
+      <div class="card-body">
+        <div class="small text-uppercase text-muted fw-semibold mb-2">Járműprofil</div>
+        <p class="text-muted small mb-0">
+          Tartsa a személyazonosság és a műszaki mezők teljes kitöltését, hogy a szolgáltatáskövetés, az emlékeztetők és a jelentések pontosak maradjanak.
+        </p>
+      </div>
+    </div>
+    <div class="card shadow-sm form-side-card">
+      <div class="card-body">
+        <div class="small text-uppercase text-muted fw-semibold mb-2">Gyors tippek</div>
+        <ul class="small text-muted mb-0 ps-3">
+          <li>Adja hozzá a VIN-t a jövőbeni azonosítás egyszerűsítéséhez.</li>
+          <li>A gyorsabb keresés érdekében használjon pontos lemezformátumot.</li>
+          <li>Töltse ki a motor- és teljesítményértékeket a jobb jelentések érdekében.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Quick-add: Client ──────────────────────────────────────────────────── -->
+<div class="modal fade" id="clientModal" tabindex="-1" aria-labelledby="clientModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="clientModalLabel">Új kliens hozzáadása</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger d-none" id="clientModalError"></div>
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Keresztnév *</label>
+            <input type="text" class="form-control" id="qc_first_name" placeholder="Keresztnév" autocomplete="off">
+            <div class="text-danger small mt-1" id="qc_first_name_err"></div>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Vezetéknév</label>
+            <input type="text" class="form-control" id="qc_last_name" placeholder="Vezetéknév" autocomplete="off">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Vállalat / Szervezet</label>
+            <input type="text" class="form-control" id="qc_company" placeholder="Cégnév" autocomplete="off">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="qc_email" placeholder="email@example.com" autocomplete="off">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Telefon</label>
+            <input type="text" class="form-control" id="qc_phone" placeholder="+1 234 567 890" autocomplete="off">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Megjegyzések</label>
+            <textarea class="form-control" id="qc_notes" rows="2" placeholder="Választható megjegyzések…"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Mégse</button>
+        <button type="button" class="btn btn-primary" id="clientModalMentés">
+          <span class="spinner-border spinner-border-sm d-none me-1" id="clientSpinner"></span>
+          Ügyfél hozzáadása
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Quick-add: Make ────────────────────────────────────────────────────── -->
+<div class="modal fade" id="makeModal" tabindex="-1" aria-labelledby="makeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="makeModalLabel">Új gyártmány hozzáadása</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger d-none" id="makeModalError"></div>
+        <div class="mb-3">
+          <label class="form-label">Márkanév *</label>
+          <input type="text" class="form-control" id="qm_name" placeholder="például Toyota">
+          <div class="text-danger small mt-1" id="qm_name_err"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Mégse</button>
+        <button type="button" class="btn btn-primary" id="makeModalMentés">
+          <span class="spinner-border spinner-border-sm d-none me-1" id="makeSpinner"></span>
+          Gyártmány hozzáadása
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Quick-add: Model ───────────────────────────────────────────────────── -->
+<div class="modal fade" id="modelModal" tabindex="-1" aria-labelledby="modelModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modelModalLabel">Új modell hozzáadása</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger d-none" id="modelModalError"></div>
+        <div class="mb-3">
+          <label class="form-label">Készíts *</label>
+          <select class="form-select" id="qmod_make">
+            <option value="">— Válassza a Gyártást —</option>
+          </select>
+          <div class="text-danger small mt-1" id="qmod_make_err"></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Modell neve *</label>
+          <input type="text" class="form-control" id="qmod_name" placeholder="például Párta" autocomplete="off">
+          <div class="text-danger small mt-1" id="qmod_name_err"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Mégse</button>
+        <button type="button" class="btn btn-primary" id="modelModalMentés">
+          <span class="spinner-border spinner-border-sm d-none me-1" id="modelSpinner"></span>
+          Modell hozzáadása
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  // ── Cascade: make → model ─────────────────────────────────────────────────
+  var makeSelect  = document.getElementById('id_make');
+  var modelSelect = document.getElementById('id_model');
+  var API_MODELS  = '{% url "catalog:api_models" %}';
+  var API_MAKE_QA = '{% url "catalog:api_make_quick_add" %}';
+  var API_MOD_QA  = '{% url "catalog:api_model_quick_add" %}';
+  var API_CLIENT_QA = '{% url "clients:api_quick_add" %}';
+  var CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  var currentModel = '{{ form.instance.model|default:""|escapejs }}';
+
+  function loadModels(makeName, selectAfter) {
+    if (!makeName) return;
+    fetch(API_MODELS + '?make=' + encodeURIComponent(makeName))
+      .then(function (r) { return r.json(); })
+      .then(function (names) {
+        var target = (selectAfter !== undefined) ? selectAfter : modelSelect.value;
+        modelSelect.innerHTML = '<option value="">— Válassza ki a modellt —</option>';
+        names.forEach(function (name) {
+          var opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          if (name === target) opt.selected = true;
+          modelSelect.appendChild(opt);
+        });
+        if (target && !names.includes(target)) {
+          var opt = document.createElement('option');
+          opt.value = target; opt.textContent = target; opt.selected = true;
+          modelSelect.appendChild(opt);
+        }
+      });
+  }
+
+  if (makeSelect) makeSelect.addEventListener('change', function () { loadModels(this.value, ''); });
+  if (makeSelect && makeSelect.value) loadModels(makeSelect.value, currentModel);
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function post(url, data) {
+    var fd = new FormData();
+    Object.keys(data).forEach(function (k) { fd.append(k, data[k]); });
+    fd.append('csrfmiddlewaretoken', CSRF);
+    return fetch(url, { method: 'POST', body: fd });
+  }
+
+  function clearErrors(ids) {
+    ids.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = ''; }
+    });
+  }
+
+  function showFieldErrors(errors, map) {
+    Object.keys(map).forEach(function (field) {
+      if (errors[field] && map[field]) {
+        var el = document.getElementById(map[field]);
+        if (el) el.textContent = errors[field][0];
+      }
+    });
+  }
+
+  function setSpinner(spinnerId, btnId, on) {
+    var sp = document.getElementById(spinnerId);
+    var btn = document.getElementById(btnId);
+    if (sp) sp.classList.toggle('d-none', !on);
+    if (btn) btn.disabled = on;
+  }
+
+  function addOrSelectOption(select, value, label) {
+    var existing = select.querySelector('option[value="' + CSS.escape(value) +'"]');
+    if (!existing) {
+      var opt = document.createElement('option');
+      opt.value = value; opt.textContent = label;
+      select.appendChild(opt);
+    }
+    select.value = value;
+  }
+
+  function closeModal(id) {
+    var el = document.getElementById(id);
+    if (el) bootstrap.Modal.getInstance(el).hide();
+  }
+
+  function resetInputs(ids) {
+    ids.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  }
+
+  // ── Client modal ──────────────────────────────────────────────────────────
+  var clientSelect = document.getElementById('id_client');
+
+  var clientMentésBtn = document.getElementById('clientModalMentés');
+  if (clientMentésBtn) {
+    clientMentésBtn.addEventListener('click', function () {
+      clearErrors(['qc_first_name_err']);
+      var firstName = document.getElementById('qc_first_name').value.trim();
+      var lastName  = document.getElementById('qc_last_name').value.trim();
+      var company   = document.getElementById('qc_company').value.trim();
+      var email     = document.getElementById('qc_email').value.trim();
+      var phone     = document.getElementById('qc_phone').value.trim();
+      var notes     = document.getElementById('qc_notes').value.trim();
+      setSpinner('clientSpinner', 'clientModalMentés', true);
+      post(API_CLIENT_QA, {
+        first_name: firstName, last_name: lastName, company: company,
+        email: email, phone: phone, notes: notes
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (res) {
+          setSpinner('clientSpinner', 'clientModalMentés', false);
+          if (!res.ok) {
+            showFieldErrors(res.data.errors || {}, { first_name: 'qc_first_name_err' });
+            return;
+          }
+          if (clientSelect) addOrSelectOption(clientSelect, res.data.pk, res.data.label);
+          resetInputs(['qc_first_name', 'qc_last_name', 'qc_company', 'qc_email', 'qc_phone', 'qc_notes']);
+          closeModal('clientModal');
+        });
+    });
+  }
+
+  // ── Make modal ────────────────────────────────────────────────────────────
+  var makeMentésBtn = document.getElementById('makeModalMentés');
+  if (makeMentésBtn) {
+    makeMentésBtn.addEventListener('click', function () {
+      clearErrors(['qm_name_err']);
+      var name = document.getElementById('qm_name').value.trim();
+      setSpinner('makeSpinner', 'makeModalMentés', true);
+      post(API_MAKE_QA, { name: name })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (res) {
+          setSpinner('makeSpinner', 'makeModalMentés', false);
+          if (!res.ok) {
+            showFieldErrors(res.data.errors || {}, { name: 'qm_name_err' });
+            return;
+          }
+          if (makeSelect) addOrSelectOption(makeSelect, res.data.name, res.data.name);
+          resetInputs(['qm_name']);
+          closeModal('makeModal');
+          if (makeSelect && makeSelect.value) loadModels(makeSelect.value, '');
+        });
+    });
+  }
+
+  // ── Model modal — populate make dropdown from main form's select ──────────
+  var modelModal = document.getElementById('modelModal');
+  if (modelModal) {
+    modelModal.addEventListener('show.bs.modal', function () {
+      var qmodMake = document.getElementById('qmod_make');
+      if (!qmodMake || !makeSelect) return;
+      // Rebuild options from the main make select
+      qmodMake.innerHTML = '<option value="">— Válassza a Gyártást —</option>';
+      Array.from(makeSelect.options).forEach(function (opt) {
+        if (!opt.value) return;
+        var newOpt = new Option(opt.textContent, opt.value);
+        qmodMake.add(newOpt);
+      });
+      // Előzetes kijelölés, ami jelenleg a főkiválasztásban van kiválasztva
+      if (makeSelect.value) qmodMake.value = makeSelect.value;
+    });
+  }
+
+  var modelMentésBtn = document.getElementById('modelModalMentés');
+  if (modelMentésBtn) {
+    modelMentésBtn.addEventListener('click', function () {
+      clearErrors(['qmod_make_err', 'qmod_name_err']);
+      var makeName = document.getElementById('qmod_make').value;
+      var modelName = document.getElementById('qmod_name').value.trim();
+      setSpinner('modelSpinner', 'modelModalMentés', true);
+      post(API_MOD_QA, { make: makeName, name: modelName })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, adatok: d }; }); })
+        .then(function (res) {
+          setSpinner('modelSpinner', 'modelModalMentés', false);
+          if (!res.ok) {
+            showFieldErrors(res.data.errors || {}, { make: 'qmod_make_err', name: 'qmod_name_err' });
+            visszatérés;
+          }
+          // Az új make szinkronizálása a fő kiválasztással, ha frissen jött létre
+          if (makeSelect) addOrSelectOption(makeSelect, res.data.make, res.data.make);
+          // Töltse be újra a modelllistát ehhez a márkához, és válassza ki előre az új modellt
+          if (modelSelect) loadModels(res.data.make, res.data.name);
+          document.getElementById('qmod_make').value = '';
+          resetInputs(['qmod_name']);
+          closeModal('modelModal');
+        });
+    });
+  }
+
+  // ── A kulcs megadása modális küldés ─────────────────────── ───────────────────────
+  [
+    ['clientModal', 'clientModalMentés'],
+    ['makeModal', 'makeModalMentés'],
+    ['modelModal', 'modelModalMentés'],
+  ].forEach(function (pair) {
+    var modal = document.getElementById(pair[0]);
+    if (!modal) return;
+    modal.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById(pair[1]).click();
+      }
+    });
+  });
+
+  // ── Fókuszálás az első bemenetre a modális megnyitásakor ─────────────────────────────-
+  [
+    ['clientModal', "qc_first_name"],
+    ['makeModal', 'qm_name'],
+    ['modelModal', 'qmod_make'],
+  ].forEach(function (pair) {
+    var modal = document.getElementById(pair[0]);
+    if (!modal) return;
+    modal.addEventListener('shown.bs.modal', function () {
+      var el = document.getElementById(pair[1]);
+      if (el) el.focus();
+    });
+  });
+
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}{{ garage.name }} — Members — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+  <div>
+    <a href="{% url 'garages:dashboard' garage.slug %}" class="text-muted small text-decoration-none">← {{ garage.name }}</a>
+    <h2 class="mb-0 mt-1">tagok</h2>
+  </div>
+</div>
+
+<!-- Current members -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Felhasználó</th>
+          <th>Email</th>
+          <th>Szerep</th>
+          <th>Csatlakozott</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in memberships %}
+        <tr>
+          <td class="fw-semibold">{{ m.user.username }}</td>
+          <td class="text-muted small">{{ m.user.email }}</td>
+          <td>
+            {% if m.role == "owner" %}
+              <span class="badge bg-warning text-dark">Tulajdonos</span>
+            {% elif m.role == "admin" %}
+              <span class="badge bg-primary">Admin</span>
+            {% elif m.role == "mechanic" %}
+              <span class="badge bg-info text-dark">Szerelő</span>
+            {% else %}
+              <span class="badge bg-secondary">Személyzet</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ m.created_at|date:"d M Y" }}</td>
+          <td class="text-end">
+            {% if m.role != "owner" %}
+              <div class="d-flex gap-1 justify-content-end">
+                <form method="post" action="{% url 'garages:member_role' garage.slug m.pk %}" class="d-flex gap-1">
+                  {% csrf_token %}
+                  <select name="role" class="form-select form-select-sm" style="width:auto">
+                    {% for value, label in m.Role.choices %}
+                      {% if value != "owner" %}
+                        <option value="{{ value }}" {% if value == m.role %}selected{% endif %}>{{ label }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="btn btn-sm btn-outline-secondary">Készlet</button>
+                </form>
+                <form method="post" action="{% url 'garages:member_remove' garage.slug m.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" style="padding: 10px;" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('Remove {{ m.user.username }} from this garage?')">
+                    Távolítsa el
+                  </button>
+                </form>
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Invite existing user -->
+  <div class="col-xl-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Meglévő felhasználó meghívása</h5>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">{{ invite_form.username_or_email.label }}</label>
+            {{ invite_form.username_or_email }}
+            {% for error in invite_form.username_or_email.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">{{ invite_form.role.label }}</label>
+            {{ invite_form.role }}
+          </div>
+          <button type="submit" class="btn btn-primary">Tag hozzáadása lehetőségre</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Létrehozás new user and add -->
+  <div class="col-xl-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Új felhasználó létrehozása</h5>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="létrehozás_tag">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">{{ create_member_form.username.label }}</label>
+              {{ create_member_form.username }}
+              {% for error in create_member_form.username.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">{{ create_member_form.email.label }}</label>
+              {{ create_member_form.email }}
+              {% for error in create_member_form.email.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">{{ create_member_form.first_name.label }}</label>
+              {{ create_member_form.first_name }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">{{ create_member_form.last_name.label }}</label>
+              {{ create_member_form.last_name }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">{{ create_member_form.password.label }}</label>
+              {{ create_member_form.password }}
+              <div class="form-text">{{ create_member_form.password.help_text }}</div>
+              {% for error in create_member_form.password.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">{{ create_member_form.role.label }}</label>
+              {{ create_member_form.role }}
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success mt-3">Felhasználó létrehozása és hozzáadása</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

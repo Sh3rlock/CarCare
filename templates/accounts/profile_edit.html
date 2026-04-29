@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Profil szerkesztése — CarCare{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-7 col-lg-5">
+    <h2 class="mb-4">Profil szerkesztése</h2>
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}
+                <div class="form-text">{{ field.help_text }}</div>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">Módosítások mentése</button>
+            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Mégse</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

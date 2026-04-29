@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Form Builder — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">Űrlapkészítő</h2>
+</div>
+
+<p class="text-muted mb-4">
+  Konfiguráljon űrlapokat, rejtse el a beépített modulokat, amelyekre nincs szüksége, vagy hozzon létre teljesen új egyéni modulokat.
+</p>
+
+<!-- ── Forms ───────────────────────────────────────── -->
+<h5 class="fw-semibold mb-3">Űrlapok</h5>
+<div class="row g-3 mb-5">
+  {% for f in forms %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-1">{{ f.label }}</h5>
+        <p class="text-muted small mb-3">
+          {{ f.field_count }} built-in field{{ f.field_count|pluralize }}
+          {% if f.hidden_count %}
+            &nbsp;·&nbsp;<span class="text-warning">{{ f.hidden_count }} hidden</span>
+          {% endif %}
+          {% if f.custom_count %}
+            &nbsp;·&nbsp;<span class="text-success">{{ f.custom_count }} custom</span>
+          {% endif %}
+        </p>
+        <a href="{% url 'formconfig:form_fields' f.key %}" class="btn btn-sm btn-outline-primary">
+          Mezők kezelése
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ── Built-in Modules ────────────────────────────── -->
+<h5 class="fw-semibold mb-3">Beépített modulok</h5>
+<p class="text-muted small mb-3">
+  A letiltott modulok el vannak rejtve a járműoldalon, és URL-jük 404-et ad vissza.
+</p>
+<div class="card shadow-sm mb-5">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Modul</th>
+          <th class="text-center" style="width:160px">Állapot</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in builtin_modules %}
+        <tr class="{% if not m.is_enabled %}table-secondary{% endif %}">
+          <td class="fw-medium {% if not m.is_enabled %}text-muted{% endif %}">{{ m.label }}</td>
+          <td class="text-center">
+            <form method="post" action="{% url 'formconfig:toggle_module' m.key %}" style="display:inline">
+              {% csrf_token %}
+              <button type="submit"
+                      class="btn btn-sm w-100 {% if m.is_enabled %}btn-success{% else %}btn-outline-secondary{% endif %}">
+                {% if m.is_enabled %}&#10003; Enabled{% else %}Disabled{% endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Custom Modules ──────────────────────────────── -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="fw-semibold mb-0">Egyedi modulok</h5>
+  <a href="{% url 'formconfig:dynamic_module_add' %}" class="btn btn-sm btn-success">+ Új modul</a>
+</div>
+
+{% if dynamic_modules %}
+<div class="card shadow-sm mb-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Név</th>
+          <th>Meztelen csiga</th>
+          <th class="text-center">Mezők</th>
+          <th class="text-center" style="width:140px">Állapot</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dm in dynamic_modules %}
+        <tr class="{% if not dm.is_enabled %}table-secondary{% endif %}">
+          <td class="fw-medium {% if not dm.is_enabled %}text-muted{% endif %}">{{ dm.name }}</td>
+          <td><code class="text-secondary small">{{ dm.slug }}</code></td>
+          <td class="text-center">{{ dm.fields.count }}</td>
+          <td class="text-center">
+            <form method="post" action="{% url 'formconfig:dynamic_module_toggle' dm.pk %}" style="display:inline">
+              {% csrf_token %}
+              <button type="submit"
+                      class="btn btn-sm w-100 {% if dm.is_enabled %}btn-success{% else %}btn-outline-secondary{% endif %}">
+                {% if dm.is_enabled %}&#10003; Enabled{% else %}Disabled{% endif %}
+              </button>
+            </form>
+          </td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'formconfig:dynamic_module_fields' dm.pk %}" class="btn btn-sm btn-outline-primary">Mezők</a>
+            <a href="{% url 'formconfig:dynamic_module_edit' dm.pk %}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+            <a href="{% url 'formconfig:dynamic_module_delete' dm.pk %}" class="btn btn-sm btn-outline-danger">Törlés</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body text-muted text-center py-4">
+    Még nincsenek egyéni modulok. Kattintson <strong>+ Új modul</strong> létrehozásához (pl. "Ügyféladatok", "Gumiabroncsnapló").
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

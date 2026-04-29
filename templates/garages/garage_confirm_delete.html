@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Törlés {{ garage.name }} — CarCare{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'garages:dashboard' garage.slug %}" class="btn btn-sm btn-outline-secondary">← Vissza</a>
+</div>
+<div class="card shadow-sm border-danger" style="max-width:480px">
+  <div class="card-body">
+    <h4 class="card-title text-danger">Garázs törlése</h4>
+    <p>Biztos benne, hogy véglegesen törölni szeretné? <strong>{{ garage.name }}</strong>?</p>
+    <p class="text-muted small">Ezzel törli az összes garázsspecifikus beállítást és eltávolítja az összes tagtársítást. A járművek fognak <strong>nem</strong> törölni kell – hozzárendelésük megszűnik.</p>
+    <form method="post" class="d-flex gap-2 mt-4">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Igen, töröld</button>
+      <a href="{% url 'garages:dashboard' garage.slug %}" class="btn btn-outline-secondary">Mégse</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

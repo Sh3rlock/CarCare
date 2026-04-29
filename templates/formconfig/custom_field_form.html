@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_new %}Egyéni mező hozzáadása{% else %}Egyéni mező szerkesztése{% endif %} — {{ form_label }} — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'formconfig:form_list' %}">Űrlapkészítő</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'formconfig:form_fields' form_key %}">{{ form_label }}</a></li>
+    <li class="breadcrumb-item active">{% if is_new %}Egyéni mező hozzáadása{% else %}Szerkesztés{% endif %}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-5">
+    <h2 class="mb-4">{% if is_new %}Egyéni mező hozzáadása{% else %}Egyéni mező szerkesztése{% endif %}</h2>
+
+    {% if not is_new %}
+    <p class="text-muted mb-3">
+      Mezőkulcs: <code>{{ object.field_key }}</code>
+      <span class="ms-2 text-muted small">(automatikusan generált, nem módosítható)</span>
+    </p>
+    {% endif %}
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label" for="{{ cf_form.label.id_for_label }}">Címke *</label>
+              {{ cf_form.label }}
+              <div class="form-text">A címkéket a felhasználók látni fogják az űrlapon.</div>
+              {% for e in cf_form.label.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="{{ cf_form.field_type.id_for_label }}">Mező típusa</label>
+              {{ cf_form.field_type }}
+              {% for e in cf_form.field_type.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="{{ cf_form.position.id_for_label }}">Pozíció</label>
+              {{ cf_form.position }}
+              <div class="form-text">Először az alacsonyabb számok jelennek meg.</div>
+            </div>
+            <div class="col-12">
+              <div class="form-check">
+                {{ cf_form.is_required }}
+                <label class="form-check-label" for="{{ cf_form.is_required.id_for_label }}">Kötelező mező</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              {% if is_new %}Mező hozzáadása{% else %}Módosítások mentése{% endif %}
+            </button>
+            <a href="{% url 'formconfig:form_fields' form_key %}" class="btn btn-outline-secondary">Mégse</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

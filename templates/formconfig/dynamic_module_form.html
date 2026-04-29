@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_new %}Új egyéni modul{% else %}Szerkesztés {{ object.name }}{% endif %} — Form Builder — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'formconfig:form_list' %}">Űrlapkészítő</a></li>
+    <li class="breadcrumb-item active">{% if is_new %}Új modul{% else %}Modul szerkesztése{% endif %}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-5">
+    <h2 class="mb-4">{% if is_new %}Új egyéni modul{% else %}Modul szerkesztése{% endif %}</h2>
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label" for="{{ dm_form.name.id_for_label }}">Név *</label>
+              {{ dm_form.name }}
+              <div class="form-text">például „Ügyféladatok”, „Gumiabroncs-napló”. Az URL-slug automatikusan generálódik.</div>
+              {% for e in dm_form.name.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="{{ dm_form.description.id_for_label }}">Leírás</label>
+              {{ dm_form.description }}
+              <div class="form-text">Választható rövid leírás a jármű oldalán.</div>
+              {% for e in dm_form.description.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="{{ dm_form.position.id_for_label }}">Pozíció</label>
+              {{ dm_form.position }}
+              <div class="form-text">Rendelés a jármű oldalán (alul = első).</div>
+            </div>
+            <div class="col-12">
+              <div class="form-check form-switch">
+                {{ dm_form.is_enabled }}
+                <label class="form-check-label" for="{{ dm_form.is_enabled.id_for_label }}">Engedélyezve</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              {% if is_new %}Modul létrehozása{% else %}Módosítások mentése{% endif %}
+            </button>
+            <a href="{% url 'formconfig:form_list' %}" class="btn btn-outline-secondary">Mégse</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ garage.name }} — {% if is_new %}Hozzáadás{% else %}Szerkesztés{% endif %} modul — CarCare{% endblock %}
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'garages:settings' garage.slug %}" class="btn btn-sm btn-outline-secondary">← Beállítások</a>
+</div>
+<div class="card shadow-sm" style="max-width:520px">
+  <div class="card-body">
+    <h4 class="card-title mb-4">{% if is_new %}Új{% else %}Szerkesztés{% endif %} egyéni modul</h4>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in dm_form %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+          {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">{% if is_new %}Létrehozás{% else %}Mentés{% endif %}</button>
+        {% if not is_new %}
+          <a href="{% url 'garages:dynamic_module_delete' garage.slug object.pk %}" class="btn btn-outline-danger ms-auto">Törlés</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

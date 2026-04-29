@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Futásteljesítmény napló — {{ vehicle }} — CarCare{% endblock %}
+
+{% block content %}
+<nav aria-label="zsemlemorzsa" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+    <li class="breadcrumb-item"><a href="{{ vehicle.get_absolute_url }}">{{ vehicle.make }} {{ vehicle.model }}</a></li>
+    <li class="breadcrumb-item active">Futásnapló</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h2 class="mb-0">Futásnapló</h2>
+  <a href="{% url 'mileage:create' vehicle_pk=vehicle.pk %}" class="btn btn-primary">+ Futásteljesítmény naplózása</a>
+</div>
+
+{% if latest_odometer %}
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-4">
+      <div class="card shadow-sm text-center py-3">
+        <div class="card-body">
+          <div class="fs-2 fw-bold text-primary">{{ latest_odometer|floatformat:0 }}</div>
+          <div class="text-muted small">Aktuális kilométerszámláló</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-md-4">
+      <div class="card shadow-sm text-center py-3">
+        <div class="card-body">
+          <div class="fs-2 fw-bold">{{ total_entries }}</div>
+          <div class="text-muted small">Naplóbejegyzések</div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{% if logs %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Dátum</th>
+            <th>Úthosszmérő</th>
+            <th>Távolság hajtott</th>
+            <th>Megjegyzések</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+            <tr>
+              <td class="text-nowrap">{{ log.date|date:"d M Y" }}</td>
+              <td class="fw-semibold">{{ log.odometer|floatformat:0 }}</td>
+              <td>
+                {% if log.distance_since_prev is not None %}
+                  {% if log.distance_since_prev >= 0 %}
+                    <span class="text-muted">+{{ log.distance_since_prev|floatformat:0 }}</span>
+                  {% else %}
+                    <span class="text-danger" title="A kilométer-számláló csökkent – ​​lehetséges korrekció">
+                      {{ log.distance_since_prev|floatformat:0 }}
+                    </span>
+                  {% endif %}
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+              <td class="text-muted">{{ log.notes|default:"" }}</td>
+              <td class="text-end text-nowrap">
+                <a href="{{ log.get_edit_url }}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+                <a href="{{ log.get_delete_url }}" class="btn btn-sm btn-outline-danger ms-1">Törlés</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+{% else %}
+  <div class="text-center py-5">
+    <p class="text-muted mb-3">Még nincs futásteljesítmény bejegyzés.</p>
+    <a href="{% url 'mileage:create' vehicle_pk=vehicle.pk %}" class="btn btn-primary">
+      Első bejegyzés naplózása
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

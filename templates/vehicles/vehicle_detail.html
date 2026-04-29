@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+
+{% block title %}{{ vehicle }} — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-start justify-content-between mb-4">
+  <div>
+    <nav aria-label="zsemlemorzsa">
+      <ol class="breadcrumb mb-1">
+        <li class="breadcrumb-item"><a href="{% url 'vehicles:list' %}">Saját járműveim</a></li>
+        <li class="breadcrumb-item active">{{ vehicle.make }} {{ vehicle.model }}</li>
+      </ol>
+    </nav>
+    <h2 class="mb-0">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h2>
+    <span class="text-muted">{{ vehicle.license_plate }}</span>
+  </div>
+  <div class="detail-actions mt-2">
+    <a href="{% url 'vehicles:update' vehicle.pk %}" class="btn btn-outline-secondary detail-action-btn">Szerkesztés</a>
+    <a href="{% url 'vehicles:delete' vehicle.pk %}" class="btn btn-outline-danger detail-action-btn">Törlés</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Vehicle details -->
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">A jármű adatai</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-5">Készíts</dt>
+          <dd class="col-7">{{ vehicle.make }}</dd>
+
+          <dt class="col-5">Modell</dt>
+          <dd class="col-7">{{ vehicle.model }}</dd>
+
+          <dt class="col-5">Év</dt>
+          <dd class="col-7">{{ vehicle.year }}</dd>
+
+          <dt class="col-5">Lemez</dt>
+          <dd class="col-7">{{ vehicle.license_plate }}</dd>
+
+          <dt class="col-5">Üzemanyag</dt>
+          <dd class="col-7">{{ vehicle.get_fuel_type_display }}</dd>
+
+          <dt class="col-5">Terjedés</dt>
+          <dd class="col-7">{{ vehicle.get_transmission_display }}</dd>
+
+          {% if vehicle.color %}
+            <dt class="col-5">Szín</dt>
+            <dd class="col-7">{{ vehicle.color }}</dd>
+          {% endif %}
+
+          {% if vehicle.ccm %}
+            <dt class="col-5">Motor</dt>
+            <dd class="col-7">{{ vehicle.ccm }} ccm</dd>
+          {% endif %}
+
+          {% if vehicle.hp %}
+            <dt class="col-5">Hatalom</dt>
+            <dd class="col-7">{{ vehicle.hp }} HP</dd>
+          {% endif %}
+
+          {% if vehicle.engine_code %}
+            <dt class="col-5">Motor kód</dt>
+            <dd class="col-7"><code class="small">{{ vehicle.engine_code }}</code></dd>
+          {% endif %}
+
+          {% if vehicle.doors %}
+            <dt class="col-5">Ajtók</dt>
+            <dd class="col-7">{{ vehicle.doors }}</dd>
+          {% endif %}
+
+          {% if vehicle.has_ac %}
+            <dt class="col-5">Klíma</dt>
+            <dd class="col-7">{{ vehicle.get_has_ac_display }}</dd>
+          {% endif %}
+
+          {% if vehicle.drive_type %}
+            <dt class="col-5">Hajtás</dt>
+            <dd class="col-7">{{ vehicle.get_drive_type_display }}</dd>
+          {% endif %}
+
+          {% if vehicle.vin %}
+            <dt class="col-5">VIN</dt>
+            <dd class="col-7"><code class="small">{{ vehicle.vin }}</code></dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
+
+    {% if vehicle.notes %}
+      <div class="card shadow-sm mt-3">
+        <div class="card-header fw-semibold">Megjegyzések</div>
+        <div class="card-body">
+          <p class="mb-0" style="white-space: pre-wrap;">{{ vehicle.notes }}</p>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if vehicle.client %}
+      <div class="card shadow-sm mt-3">
+        <div class="card-header d-flex align-items-center justify-content-between fw-semibold">
+          <span>Ügyfél</span>
+          <a href="{{ vehicle.client.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Megtekintés</a>
+        </div>
+        <div class="card-body">
+          <div class="fw-semibold">{{ vehicle.client }}</div>
+          {% if vehicle.client.company and vehicle.client.full_name %}
+            <div class="text-muted small">{{ vehicle.client.company }}</div>
+          {% endif %}
+          {% if vehicle.client.email %}
+            <div class="small mt-1"><a href="mailto:{{ vehicle.client.email }}">{{ vehicle.client.email }}</a></div>
+          {% endif %}
+          {% if vehicle.client.phone %}
+            <div class="small"><a href="tel:{{ vehicle.client.phone }}">{{ vehicle.client.phone }}</a></div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Related records -->
+  <div class="col-md-7">
+    <div class="row g-3">
+
+      <!-- Service records -->
+      {% if 'services' in enabled_modules %}
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span class="fw-semibold">Legutóbbi szervizelőzmények</span>
+            <div class="d-flex gap-2">
+              <a href="{% url 'services:create' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-primary">+ Bejegyzés hozzáadása</a>
+              <a href="{% url 'services:list' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-primary">Összes megtekintése</a>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            {% if recent_services %}
+              <ul class="list-group list-group-flush">
+                {% for record in recent_services %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                    <div>
+                      <div class="fw-semibold text-dark">
+                        {{ record.date|date:"d M Y" }} ({{ record.items.count }} sor)
+                      </div>
+                      <div class="text-muted small">
+                        {% if record.mileage %}Kilométeróra: {{ record.mileage }}{% else %}Kilométeróra: —{% endif %}
+                        ·
+                        {% if record.cost %}Összesen: {{ record.cost }}{% else %}Összesen: —{% endif %}
+                      </div>
+                      <div class="text-muted small">
+                        Megjegyzés: {% if record.notes %}{{ record.notes|truncatechars:90 }}{% else %}—{% endif %}
+                      </div>
+                      <div class="text-muted small">
+                        Szerviztípusok:
+                        {% if record.items.all %}
+                          {% for item in record.items.all %}
+                            {{ item.get_service_type_catalog_display|default:"—" }}{% if not forloop.last %}, {% endif %}
+                          {% endfor %}
+                        {% else %}
+                          —
+                        {% endif %}
+                      </div>
+                      {% if record.has_repair_item %}
+                        <span class="badge bg-danger mt-1 small">Javítás</span>
+                      {% endif %}
+                    </div>
+                    <div class="d-flex align-items-center gap-2 ms-2">
+                      <span class="text-muted small text-nowrap">{{ record.date|date:"d M Y" }}</span>
+                      <a href="{{ record.get_absolute_url }}" class="btn btn-sm btn-outline-secondary">Megtekintés</a>
+                    </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <div class="p-3 text-center text-muted small">
+                Még nincs szolgáltatási nyilvántartás.
+                <a href="{% url 'services:create' vehicle_pk=vehicle.pk %}">Hozzáadás</a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Árajánlats -->
+      {% if 'quotes' in enabled_modules %}
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span class="fw-semibold">Legutóbbi idézetek</span>
+            <div class="d-flex gap-2">
+              <a href="{% url 'quotes:create' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-primary">+ Árajánlat hozzáadása</a>
+              <a href="{% url 'quotes:list' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-primary">Összes megtekintése</a>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            {% if recent_quotes %}
+              <ul class="list-group list-group-flush">
+                {% for quote in recent_quotes %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                    <div>
+                      <a href="{{ quote.get_absolute_url }}" class="text-decoration-none fw-semibold text-dark">
+                        {{ quote.title|default:"Árajánlat" }}
+                      </a>
+                      <div class="text-muted small">
+                        {{ quote.items.count }} row{{ quote.items.count|pluralize }}
+                        ·
+                        {% if quote.total_estimate %}Becslés: {{ quote.total_estimate }}{% else %}Becslés: —{% endif %}
+                      </div>
+                    </div>
+                    <span class="text-muted small text-nowrap ms-2">{{ quote.date|date:"d M Y" }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <div class="p-3 text-center text-muted small">
+                Még nincsenek idézetek.
+                <a href="{% url 'quotes:create' vehicle_pk=vehicle.pk %}">Hozzáadás</a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Part replacements -->
+      {% if 'parts' in enabled_modules %}
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span class="fw-semibold">Legutóbbi részek</span>
+            <a href="{% url 'parts:list' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-primary">Összes megtekintése</a>
+          </div>
+          <div class="card-body p-0">
+            {% if recent_parts %}
+              <ul class="list-group list-group-flush">
+                {% for part in recent_parts %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                    <div>
+                      <a href="{{ part.get_absolute_url }}" class="text-decoration-none fw-semibold text-dark">
+                        {{ part.part_name }}
+                      </a>
+                      {% if part.is_overdue %}
+                        <span class="badge bg-danger ms-1 small">Lejárt</span>
+                      {% endif %}
+                    </div>
+                    <span class="text-muted small text-nowrap ms-2">{{ part.date|date:"d M Y" }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <div class="p-3 text-center text-muted small">
+                Még nincs rögzítve alkatrész.
+                <a href="{% url 'parts:create' vehicle_pk=vehicle.pk %}">Hozzáadás</a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Mileage -->
+      {% if 'mileage' in enabled_modules %}
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span class="fw-semibold">Futásteljesítmény</span>
+            <a href="{% url 'mileage:list' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-primary">Napló megtekintése</a>
+          </div>
+          <div class="card-body">
+            {% if latest_mileage %}
+              <div class="d-flex align-items-baseline gap-2">
+                <span class="fs-3 fw-bold text-primary">{{ latest_mileage.odometer|floatformat:0 }}</span>
+                <span class="text-muted small">{{ latest_mileage.date|date:"d M Y" }} állapot szerint</span>
+              </div>
+              <a href="{% url 'mileage:create' vehicle_pk=vehicle.pk %}"
+                 class="btn btn-sm btn-outline-secondary mt-2">+ Bejegyzés naplózása</a>
+            {% else %}
+              <p class="text-muted small mb-2">A kilométert még nem rögzítették.</p>
+              <a href="{% url 'mileage:create' vehicle_pk=vehicle.pk %}"
+                 class="btn btn-sm btn-outline-primary">Első bejegyzés naplózása</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Insurance -->
+      {% if 'insurance' in enabled_modules %}
+      <div class="col-12">
+        <div class="card shadow-sm {% if active_insurance and active_insurance.is_expiring_soon %}border-warning{% endif %}">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span class="fw-semibold">Biztosítás</span>
+            <a href="{% url 'insurance:list' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-primary">Összes megtekintése</a>
+          </div>
+          <div class="card-body">
+            {% if active_insurance %}
+              <div class="d-flex align-items-start justify-content-between">
+                <div>
+                  <div class="fw-semibold">{{ active_insurance.provider }}</div>
+                  <div class="text-muted small">{{ active_insurance.get_coverage_type_display }}</div>
+                  <div class="text-muted small mt-1">
+                    Lejár: <strong class="{% if active_insurance.is_expiring_soon %}text-warning{% endif %}">
+                      {{ active_insurance.end_date|date:"d M Y" }}
+                    </strong>
+                  </div>
+                </div>
+                {% if active_insurance.is_expiring_soon %}
+                  <span class="badge bg-warning text-dark">{{ active_insurance.days_until_expiry }} nap maradt</span>
+                {% else %}
+                  <span class="badge bg-success">Aktív</span>
+                {% endif %}
+              </div>
+            {% else %}
+              <p class="text-muted small mb-2">Nincs aktív biztosítás.</p>
+              <a href="{% url 'insurance:create' vehicle_pk=vehicle.pk %}"
+                 class="btn btn-sm btn-outline-primary">Kötvény hozzáadása</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Documents & Photos -->
+      {% if 'documents' in enabled_modules %}
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span class="fw-semibold">Dokumentumok és fotók</span>
+            <a href="{% url 'documents:list' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-primary">Összes megtekintése</a>
+          </div>
+          <div class="card-body">
+            <div class="d-flex gap-4 align-items-center">
+              <div class="text-center">
+                <div class="fs-4 fw-bold">{{ image_count }}</div>
+                <div class="text-muted small">Fotó</div>
+              </div>
+              <div class="text-center">
+                <div class="fs-4 fw-bold">{{ doc_count }}</div>
+                <div class="text-muted small">Dokumentum</div>
+              </div>
+              <div class="ms-auto d-flex gap-2">
+                <a href="{% url 'documents:img-upload' vehicle_pk=vehicle.pk %}"
+                   class="btn btn-sm btn-outline-secondary">+ Fénykép</a>
+                <a href="{% url 'documents:doc-upload' vehicle_pk=vehicle.pk %}"
+                   class="btn btn-sm btn-outline-secondary">+ Dokumentum</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Emlékeztetők -->
+      {% if 'reminders' in enabled_modules %}
+      <div class="col-12">
+        <div class="card shadow-sm {% if overdue_reminder_count %}border-danger{% endif %}">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span class="fw-semibold">
+              Emlékeztetők
+              {% if overdue_reminder_count %}
+                <span class="badge bg-danger ms-1">{{ overdue_reminder_count }} lejárt</span>
+              {% endif %}
+            </span>
+            <a href="{% url 'reminders:list' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-primary">Összes megtekintése</a>
+          </div>
+          <div class="card-body">
+            {% if reminder_count %}
+              <p class="mb-2 text-muted small">{{ reminder_count }} aktív emlékeztető</p>
+            {% else %}
+              <p class="text-muted small mb-2">Nincsenek aktív emlékeztetők.</p>
+            {% endif %}
+            <a href="{% url 'reminders:create' vehicle_pk=vehicle.pk %}"
+               class="btn btn-sm btn-outline-secondary">+ Emlékeztető hozzáadása</a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Dynamic modules -->
+      {% for dm_info in dynamic_modules %}
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span class="fw-semibold">{{ dm_info.module.name }}</span>
+            <a href="{% url 'dynamic:list' vehicle_pk=vehicle.pk module_slug=dm_info.module.slug %}"
+               class="btn btn-sm btn-outline-primary">Összes megtekintése</a>
+          </div>
+          <div class="card-body">
+            {% if dm_info.module.description %}
+              <p class="text-muted small mb-2">{{ dm_info.module.description }}</p>
+            {% endif %}
+            <p class="text-muted small mb-2">
+              {{ dm_info.record_count }} bejegyzés
+            </p>
+            <a href="{% url 'dynamic:create' vehicle_pk=vehicle.pk module_slug=dm_info.module.slug %}"
+               class="btn btn-sm btn-outline-secondary">+ Bejegyzés hozzáadása</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</div>
+<div class="detail-actions detail-actions-bottom">
+  <a href="{% url 'vehicles:update' vehicle.pk %}" class="btn btn-outline-secondary detail-action-btn">Szerkesztés</a>
+  <a href="{% url 'vehicles:delete' vehicle.pk %}" class="btn btn-outline-danger detail-action-btn">Törlés</a>
+</div>
+{% endblock %}

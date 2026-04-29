@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Egyéni mező törlése — CarCare{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-5">
+    <nav aria-label="zsemlemorzsa" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'formconfig:form_list' %}">Űrlapkészítő</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'formconfig:form_fields' form_key %}">{{ form_label }}</a></li>
+        <li class="breadcrumb-item active">Törlés</li>
+      </ol>
+    </nav>
+
+    <h2 class="mb-4 text-danger">Egyéni mező törlése</h2>
+
+    <div class="card shadow-sm border-danger">
+      <div class="card-body p-4">
+        <p>Biztosan törli az egyéni mezőt? <strong>"{{ object.label }}"</strong>?</p>
+        <p class="text-muted small">
+          A kulcs alá mentett meglévő értékek <code>{{ object.field_key }}</code> az adatbázisban marad
+          de többé nem lesz látható és nem szerkeszthető.
+        </p>
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Igen, törlés</button>
+            <a href="{% url 'formconfig:form_fields' form_key %}" class="btn btn-outline-secondary">Mégse</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

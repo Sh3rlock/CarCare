@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Saját profil — CarCare{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8 col-lg-6">
+    <div class="d-flex align-items-center mb-4">
+      <h2 class="mb-0 me-3">Saját profil</h2>
+      <a href="{% url 'accounts:profile-edit' %}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+      <a href="{% url 'accounts:password_change' %}" class="btn btn-sm btn-outline-secondary ms-2">Jelszó módosítása</a>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+
+        {% if request.user.profile.avatar %}
+          <div class="mb-4">
+            <img src="{{ request.user.profile.avatar.url }}"
+                 alt="Profilkép"
+                 class="rounded-circle"
+                 width="80" height="80"
+                 style="object-fit: cover;">
+          </div>
+        {% endif %}
+
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Felhasználónév</dt>
+          <dd class="col-sm-8">{{ request.user.username }}</dd>
+
+          <dt class="col-sm-4">Email</dt>
+          <dd class="col-sm-8">{{ request.user.email|default:"—" }}</dd>
+
+          <dt class="col-sm-4">Teljes név</dt>
+          <dd class="col-sm-8">{{ request.user.get_full_name|default:"—" }}</dd>
+
+          <dt class="col-sm-4">Telefon</dt>
+          <dd class="col-sm-8">{{ request.user.profile.phone|default:"—" }}</dd>
+
+          <dt class="col-sm-4">Tag ekkor:</dt>
+          <dd class="col-sm-8">{{ request.user.date_joined|date:"N j, Y" }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
