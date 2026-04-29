@@ -39,7 +39,7 @@ class Client(models.Model):
 
     @property
     def full_name(self):
-        return " ".join(p for p in [self.first_name, self.last_name] if p).strip()
+        return " ".join(p for p in [self.last_name, self.first_name] if p).strip()
 
     def get_absolute_url(self):
         return reverse("clients:detail", kwargs={"pk": self.pk})

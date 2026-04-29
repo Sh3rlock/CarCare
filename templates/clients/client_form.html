@@ -25,13 +25,6 @@
           {% csrf_token %}
 
           <div class="row g-3">
-            {% if 'first_name' not in hidden_fields %}
-            <div class="col-md-6">
-              <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }} *</label>
-              {{ form.first_name }}
-              {% for e in form.first_name.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
-            </div>
-            {% endif %}
             {% if 'last_name' not in hidden_fields %}
             <div class="col-md-6">
               <label class="form-label" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
@@ -39,6 +32,14 @@
               {% for e in form.last_name.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
             </div>
             {% endif %}
+            {% if 'first_name' not in hidden_fields %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }} *</label>
+              {{ form.first_name }}
+              {% for e in form.first_name.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            
 
             {% if 'company' not in hidden_fields %}
             <div class="col-12">
