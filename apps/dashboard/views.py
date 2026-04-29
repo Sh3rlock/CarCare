@@ -294,3 +294,12 @@ class GlobalSearchView(LoginRequiredMixin, TemplateView):
         context["reminders"] = reminders
         context["result_count"] = result_count
         return context
+
+
+class HelpView(TemplateView):
+    """Customer-facing help page; layout depends on authentication."""
+
+    def get_template_names(self):
+        if self.request.user.is_authenticated:
+            return ["help/help_app.html"]
+        return ["help/help_public.html"]

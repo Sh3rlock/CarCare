@@ -67,7 +67,7 @@ class VehicleForm(ConfigurableFormMixin, forms.ModelForm):
             current = self.instance.make if (self.instance and self.instance.pk) else ""
             if current and current not in make_names:
                 make_names = sorted(set(list(make_names) + [current]))
-            make_choices = [("", "— Márka kiválasztása —")] + [(m, m) for m in make_names]
+            make_choices = [("", "— Márka —")] + [(m, m) for m in make_names]
             self.fields["make"].widget = forms.Select(choices=make_choices)
 
         # ── Catalog-backed Model dropdown (JS narrows to selected make) ──
@@ -81,7 +81,7 @@ class VehicleForm(ConfigurableFormMixin, forms.ModelForm):
             current = self.instance.model if (self.instance and self.instance.pk) else ""
             if current and current not in model_names:
                 model_names = sorted(set(model_names + [current]))
-            model_choices = [("", "— Modell kiválasztása —")] + [(m, m) for m in model_names]
+            model_choices = [("", "— Modell —")] + [(m, m) for m in model_names]
             self.fields["model"].widget = forms.Select(choices=model_choices)
             if not make_name:
                 self.fields["model"].widget.attrs["disabled"] = "disabled"

@@ -64,9 +64,9 @@ class ServiceRecordItemForm(forms.ModelForm):
             if key in self.fields:
                 self.fields[key].label = label
 
-        self.fields["service_type"].choices = [("", "— Szerviztípus kiválasztása —")] + list(service_choices)
+        self.fields["service_type"].choices = [("", "— Szerviztípus —")] + list(service_choices)
         self.fields["consumable"].widget = forms.Select(
-            choices=[("", "— Fogyóanyag kiválasztása —")] + list(consumable_choices)
+            choices=[("", "— Fogyóanyag —")] + list(consumable_choices)
         )
 
         for field_name, field in self.fields.items():

@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
 
-from apps.dashboard.views import DashboardView, GlobalSearchView
+from apps.dashboard.views import DashboardView, GlobalSearchView, HelpView
 from apps.accounts.forms import StyledAuthenticationForm
 from apps.services.views import GlobalServiceHistoryView
 from apps.quotes.views import GlobalQuoteHistoryView
@@ -21,6 +21,7 @@ urlpatterns = [
         name="landing",
     ),
     path("accounts/", include("apps.accounts.urls")),
+    path("segitseg/", HelpView.as_view(), name="help"),
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path("search/", GlobalSearchView.as_view(), name="global_search"),
     path("services/", GlobalServiceHistoryView.as_view(), name="services_history"),

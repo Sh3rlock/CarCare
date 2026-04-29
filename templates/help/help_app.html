@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Súgó — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-2">
+  <div>
+    <h2 class="mb-1">Súgó</h2>
+    <p class="text-muted mb-0 small">Használati útmutató a CarCare rendszerhez</p>
+  </div>
+  <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">Műszerfal</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-4 p-lg-5">
+    {% include "help/help_content.html" %}
+  </div>
+</div>
+{% endblock %}

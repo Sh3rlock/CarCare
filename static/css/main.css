@@ -1133,6 +1133,12 @@ body.auth-public-shell {
   }
 }
 
+/* ─── HELP (customer guide) ─────────────────────────────────── */
+.help-doc { max-width: 65ch; }
+.help-doc p,
+.help-doc li { line-height: 1.6; }
+.help-doc ul { padding-left: 1.25rem; }
+
 /* ─── UTILITIES ──────────────────────────────────────────────── */
 .text-muted      { color: var(--text-muted) !important; }
 .border-dashed   { border-style: dashed !important; border-color: var(--border) !important; }
