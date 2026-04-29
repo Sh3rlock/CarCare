@@ -11,30 +11,25 @@
   </ol>
 </nav>
 
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
   <h2 class="mb-0">Idézetek</h2>
+  <form method="get" id="quoteSearchForm" class="flex-grow-1">
+    <div class="vehicle-search-wrap w-100" style="max-width: 620px;">
+      <i class="bi bi-search"></i>
+      <input type="search"
+             id="quoteSearch"
+             name="q"
+             class="vehicle-search-box"
+             value="{{ search_query }}"
+             placeholder="Keresés címe, megjegyzések, szolgáltatás típusa, cserealkatrész, fogyóeszköz..."
+             autocomplete="off"
+             spellcheck="false">
+      <button type="button" class="search-clear-btn {% if search_query %}visible{% endif %}" id="quoteSearchClear" aria-label="Keresés törlése">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </form>
   <a href="{% url 'quotes:create' vehicle_pk=vehicle.pk %}" class="btn btn-primary">+ Árajánlat hozzáadása</a>
-</div>
-
-<div class="card shadow-sm mb-3">
-  <div class="card-body py-3">
-    <form method="get" id="quoteSearchForm">
-      <div class="vehicle-search-wrap">
-        <i class="bi bi-search"></i>
-        <input type="search"
-               id="quoteSearch"
-               name="q"
-               class="vehicle-search-box"
-               value="{{ search_query }}"
-               placeholder="Keresés címe, megjegyzések, szolgáltatás típusa, cserealkatrész, fogyóeszköz..."
-               autocomplete="off"
-               spellcheck="false">
-        <button type="button" class="search-clear-btn {% if search_query %}visible{% endif %}" id="quoteSearchClear" aria-label="Keresés törlése">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-    </form>
-  </div>
 </div>
 
 {% if quotes %}
@@ -93,7 +88,7 @@
 
 {% block scripts %}
 <script>
-(függvény () {
+(() => {
   var form = document.getElementById('quoteSearchForm');
   var input = document.getElementById('quoteSearch');
   var clearBtn = document.getElementById('quoteSearchClear');
@@ -108,7 +103,7 @@
   }
 
   input.addEventListener('input', function () {
-    clearBtn.classList.toggle('látható', input.value.trim().length > 0);
+    clearBtn.classList.toggle('visible', input.value.trim().length > 0);
     submitDebounced();
   });
 

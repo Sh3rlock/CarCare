@@ -3,30 +3,31 @@
 {% block title %}Clients — CarCare{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
   <h2 class="mb-0">Ügyfelek</h2>
+  {% if clients %}
+    <div class="flex-grow-1 d-flex justify-content-center align-items-center gap-2">
+      <div class="vehicle-search-wrap w-100" style="max-width: 680px;">
+        <i class="bi bi-search"></i>
+        <input
+          type="search"
+          id="clientSearch"
+          class="vehicle-search-box"
+          placeholder="Keresés név, cég, e-mail, telefon alapján..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button class="search-clear-btn" id="searchClear" aria-label="Keresés törlése">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <span class="vehicle-search-count" id="searchCount"></span>
+    </div>
+  {% endif %}
   <a href="{% url 'clients:create' %}" class="btn btn-primary">+ Ügyfél hozzáadása</a>
 </div>
 
 {% if clients %}
-  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-    <div class="vehicle-search-wrap flex-grow-1">
-      <i class="bi bi-search"></i>
-      <input
-        type="search"
-        id="clientSearch"
-        class="vehicle-search-box"
-        placeholder="Keresés név, cég, e-mail, telefon alapján..."
-        autocomplete="off"
-        spellcheck="false"
-      >
-      <button class="search-clear-btn" id="searchClear" aria-label="Keresés törlése">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-    <span class="vehicle-search-count" id="searchCount"></span>
-  </div>
-
   <div class="card shadow-sm">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
@@ -84,15 +85,15 @@
 {% block scripts %}
 {% if clients %}
 <script>
-(függvény () {
+(() => {
   var input = document.getElementById('clientSearch');
   var clearBtn = document.getElementById('searchClear');
   var countEl = document.getElementById('searchCount');
   var emptyEl = document.getElementById('searchEmpty');
   var rows = Array.from(document.querySelectorAll('#clientTableBody .client-row'));
-  var összesen = sorok.hossz;
+  var total = rows.length;
 
-  függvény normalizál(ok) {
+  function normalize(s) {
     return (s || '').toLowerCase();
   }
 
@@ -100,23 +101,23 @@
     var query = input.value.trim();
     var tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
 
-    clearBtn.classList.toggle('látható', query.length > 0);
+    clearBtn.classList.toggle('visible', query.length > 0);
 
-    var látható = 0;
-    rows.forEach(function (sor) {
-      var szénakazal = normalize(row.dataset.search || '');
-      var match = tokens.every(function (t) { return szénakazal.includes(t); });
-      sor.hidden = !match;
-      if (egyezés) látható++;
+    var visible = 0;
+    rows.forEach(function (row) {
+      var haystack = normalize(row.dataset.search || '');
+      var match = tokens.every(function (t) { return haystack.includes(t); });
+      row.hidden = !match;
+      if (match) visible++;
     });
 
     if (tokens.length > 0) {
-      countEl.textContent = látható + ' / ' + összesen;
-    } másik {
+      countEl.textContent = visible + ' / ' + total;
+    } else {
       countEl.textContent = '';
     }
 
-    emptyEl.classList.toggle('látható', látható === 0 && tokens.length > 0);
+    emptyEl.classList.toggle('visible', visible === 0 && tokens.length > 0);
   }
 
   input.addEventListener('input', filter);

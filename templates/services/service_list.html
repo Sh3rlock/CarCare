@@ -11,8 +11,24 @@
   </ol>
 </nav>
 
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
   <h2 class="mb-0">Szervizelőzmények</h2>
+  <form method="get" id="serviceSearchForm" class="flex-grow-1">
+    <div class="vehicle-search-wrap w-100" style="max-width: 620px;">
+      <i class="bi bi-search"></i>
+      <input type="search"
+             id="serviceSearch"
+             name="q"
+             class="vehicle-search-box"
+             value="{{ search_query }}"
+             placeholder="Jegyzetek keresése, szolgáltatás típusa, cserealkatrész, fogyóeszköz, sorjegyzet..."
+             autocomplete="off"
+             spellcheck="false">
+      <button type="button" class="search-clear-btn {% if search_query %}visible{% endif %}" id="serviceSearchClear" aria-label="Keresés törlése">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </form>
   <a href="{% url 'services:create' vehicle_pk=vehicle.pk %}" class="btn btn-primary">+ Bejegyzés hozzáadása</a>
 </div>
 
@@ -41,27 +57,6 @@
         <div class="fw-semibold">{{ vehicle.vin|default:"—" }}</div>
       </div>
     </div>
-  </div>
-</div>
-
-<div class="card shadow-sm mb-3">
-  <div class="card-body py-3">
-    <form method="get" id="serviceSearchForm">
-      <div class="vehicle-search-wrap">
-        <i class="bi bi-search"></i>
-        <input type="search"
-               id="serviceSearch"
-               name="q"
-               class="vehicle-search-box"
-               value="{{ search_query }}"
-               placeholder="Jegyzetek keresése, szolgáltatás típusa, cserealkatrész, fogyóeszköz, sorjegyzet..."
-               autocomplete="off"
-               spellcheck="false">
-        <button type="button" class="search-clear-btn {% if search_query %}visible{% endif %}" id="serviceSearchClear" aria-label="Keresés törlése">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-    </form>
   </div>
 </div>
 
@@ -157,7 +152,7 @@
 
 {% block scripts %}
 <script>
-(függvény () {
+(() => {
   var form = document.getElementById('serviceSearchForm');
   var input = document.getElementById('serviceSearch');
   var clearBtn = document.getElementById('serviceSearchClear');
@@ -172,7 +167,7 @@
   }
 
   input.addEventListener('input', function () {
-    clearBtn.classList.toggle('látható', input.value.trim().length > 0);
+    clearBtn.classList.toggle('visible', input.value.trim().length > 0);
     submitDebounced();
   });
 

@@ -355,7 +355,14 @@
   var currentModel = '{{ form.instance.model|default:""|escapejs }}';
 
   function loadModels(makeName, selectAfter) {
-    if (!makeName) return;
+    if (!modelSelect) return;
+    if (!makeName) {
+      modelSelect.innerHTML = '<option value="">— Válassza ki a modellt —</option>';
+      modelSelect.value = '';
+      modelSelect.disabled = true;
+      return;
+    }
+    modelSelect.disabled = true;
     fetch(API_MODELS + '?make=' + encodeURIComponent(makeName))
       .then(function (r) { return r.json(); })
       .then(function (names) {
@@ -373,11 +380,17 @@
           opt.value = target; opt.textContent = target; opt.selected = true;
           modelSelect.appendChild(opt);
         }
+        modelSelect.disabled = false;
       });
   }
 
   if (makeSelect) makeSelect.addEventListener('change', function () { loadModels(this.value, ''); });
-  if (makeSelect && makeSelect.value) loadModels(makeSelect.value, currentModel);
+  if (makeSelect && makeSelect.value) {
+    loadModels(makeSelect.value, currentModel);
+  } else if (modelSelect) {
+    modelSelect.innerHTML = '<option value="">— Válassza ki a modellt —</option>';
+    modelSelect.disabled = true;
+  }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function post(url, data) {
@@ -513,12 +526,12 @@
       var modelName = document.getElementById('qmod_name').value.trim();
       setSpinner('modelSpinner', 'modelModalMentés', true);
       post(API_MOD_QA, { make: makeName, name: modelName })
-        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, adatok: d }; }); })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
         .then(function (res) {
           setSpinner('modelSpinner', 'modelModalMentés', false);
           if (!res.ok) {
             showFieldErrors(res.data.errors || {}, { make: 'qmod_make_err', name: 'qmod_name_err' });
-            visszatérés;
+            return;
           }
           // Az új make szinkronizálása a fő kiválasztással, ha frissen jött létre
           if (makeSelect) addOrSelectOption(makeSelect, res.data.make, res.data.make);

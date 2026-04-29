@@ -3,29 +3,30 @@
 {% block title %}Szerviztörténet — CarCare{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
   <h2 class="mb-0">Szervizelőzmények</h2>
+  {% if records %}
+    <div class="flex-grow-1 d-flex align-items-center gap-2">
+      <div class="vehicle-search-wrap w-100" style="max-width: 620px;">
+        <i class="bi bi-search"></i>
+        <input
+          type="search"
+          id="serviceSearch"
+          class="vehicle-search-box"
+          placeholder="Keresés jármű, tábla, dátum, megjegyzések, szolgáltatástípus, cserealkatrész szerint..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button class="search-clear-btn" id="searchClear" aria-label="Keresés törlése">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <span class="vehicle-search-count" id="searchCount"></span>
+    </div>
+  {% endif %}
 </div>
 
 {% if records %}
-  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-    <div class="vehicle-search-wrap flex-grow-1">
-      <i class="bi bi-search"></i>
-      <input
-        type="search"
-        id="serviceSearch"
-        class="vehicle-search-box"
-        placeholder="Keresés jármű, tábla, dátum, megjegyzések, szolgáltatástípus, cserealkatrész szerint..."
-        autocomplete="off"
-        spellcheck="false"
-      >
-      <button class="search-clear-btn" id="searchClear" aria-label="Keresés törlése">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-    <span class="vehicle-search-count" id="searchCount"></span>
-  </div>
-
   <div class="card shadow-sm">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
@@ -96,45 +97,45 @@
 {% block scripts %}
 {% if records %}
 <script>
-(függvény () {
+(() => {
   var input = document.getElementById('serviceSearch');
   var clearBtn = document.getElementById('searchClear');
   var countEl = document.getElementById('searchCount');
   var emptyEl = document.getElementById('searchEmpty');
   var rows = Array.from(document.querySelectorAll('#serviceTableBody .service-row'));
-  var összesen = sorok.hossz;
+  var total = rows.length;
 
-  függvény normalizál(ok) {
+  function normalize(s) {
     return (s || '').toLowerCase();
   }
 
   function filter() {
     var query = input.value.trim();
     var tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
-    clearBtn.classList.toggle('látható', query.length > 0);
+    clearBtn.classList.toggle('visible', query.length > 0);
 
-    var látható = 0;
-    rows.forEach(function (sor) {
-      var szénakazal = normalize(row.dataset.search || '');
-      var match = tokens.every(function (t) { return szénakazal.includes(t); });
-      sor.hidden = !match;
-      if (egyezés) látható++;
+    var visible = 0;
+    rows.forEach(function (row) {
+      var haystack = normalize(row.dataset.search || '');
+      var match = tokens.every(function (t) { return haystack.includes(t); });
+      row.hidden = !match;
+      if (match) visible++;
     });
 
     if (tokens.length > 0) {
-      countEl.textContent = látható + ' / ' + összesen;
-    } másik {
+      countEl.textContent = visible + ' / ' + total;
+    } else {
       countEl.textContent = '';
     }
-    emptyEl.classList.toggle('látható', látható === 0 && tokens.length > 0);
+    emptyEl.classList.toggle('visible', visible === 0 && tokens.length > 0);
   }
 
   input.addEventListener('input', filter);
-  rows.forEach(function (sor) {
-    row.addEventListener('kattintás', function (e) {
+  rows.forEach(function (row) {
+    row.addEventListener('click', function (e) {
       if (e.target.closest('a,button,input,select,textarea')) return;
-      var href = sor.dataset.href;
-      if (href) ablak.hely.href = href;
+      var href = row.dataset.href;
+      if (href) window.location.href = href;
     });
   });
   clearBtn.addEventListener('click', function () {

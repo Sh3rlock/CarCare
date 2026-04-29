@@ -6,11 +6,24 @@
 {% block content %}
 
 <!-- Header -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
   <div>
     <h2 class="mb-0">Műszerfal</h2>
     <p class="text-muted mb-0 small">Üdv újra, {{ request.user.get_full_name|default:request.user.username }}</p>
   </div>
+  <form method="get" action="{% url 'global_search' %}" class="flex-grow-1 d-flex justify-content-center">
+    <div class="vehicle-search-wrap w-100" style="max-width: 680px;">
+      <i class="bi bi-search"></i>
+      <input
+        type="search"
+        name="q"
+        class="vehicle-search-box"
+        placeholder="Globális keresés: ügyfelek, járművek, szervizek, árajánlatok, emlékeztetők..."
+        autocomplete="off"
+        spellcheck="false"
+      >
+    </div>
+  </form>
   <a href="{% url 'vehicles:create' %}" class="btn btn-primary">+ Jármű hozzáadása</a>
 </div>
 

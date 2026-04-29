@@ -2,13 +2,16 @@ import datetime
 from decimal import Decimal
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Sum
+from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncMonth
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 
+from apps.clients.models import Client
 from apps.garages.utils import get_active_garage
+from apps.quotes.models import Quote
+from apps.reminders.models import Reminder
 from apps.parts.models import PartReplacement
 from apps.reminders.utils import get_smart_alerts
 from apps.services.models import ServiceRecord, ServiceRecordItem
@@ -151,4 +154,143 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["top_service_type_labels"] = top_type_labels
         context["top_service_type_counts"] = top_type_counts
 
+        return context
+
+
+class GlobalSearchView(LoginRequiredMixin, TemplateView):
+    template_name = "search/global_search.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = (self.request.GET.get("q") or "").strip()
+        garage = get_active_garage(self.request)
+
+        context["search_query"] = query
+        context["clients"] = []
+        context["vehicles"] = []
+        context["services"] = []
+        context["quotes"] = []
+        context["reminders"] = []
+
+        if not query:
+            context["result_count"] = 0
+            return context
+
+        client_scope = Q(garage=garage) if garage else Q(user=self.request.user)
+        vehicle_scope = Q(garage=garage) if garage else Q(owner=self.request.user)
+        vehicle_relation_scope = Q(vehicle__garage=garage) if garage else Q(vehicle__owner=self.request.user)
+
+        clients = (
+            Client.objects.filter(client_scope)
+            .filter(
+                Q(first_name__icontains=query)
+                | Q(last_name__icontains=query)
+                | Q(company__icontains=query)
+                | Q(email__icontains=query)
+                | Q(phone__icontains=query)
+                | Q(address__icontains=query)
+                | Q(notes__icontains=query)
+            )
+            .order_by("last_name", "first_name")[:25]
+        )
+
+        vehicles = (
+            Vehicle.objects.filter(vehicle_scope)
+            .select_related("client")
+            .filter(
+                Q(make__icontains=query)
+                | Q(model__icontains=query)
+                | Q(license_plate__icontains=query)
+                | Q(vin__icontains=query)
+                | Q(color__icontains=query)
+                | Q(engine_code__icontains=query)
+                | Q(notes__icontains=query)
+            )
+            .order_by("-created_at")[:25]
+        )
+        if query.isdigit():
+            vehicles = (
+                Vehicle.objects.filter(vehicle_scope)
+                .select_related("client")
+                .filter(
+                    Q(make__icontains=query)
+                    | Q(model__icontains=query)
+                    | Q(license_plate__icontains=query)
+                    | Q(vin__icontains=query)
+                    | Q(color__icontains=query)
+                    | Q(engine_code__icontains=query)
+                    | Q(notes__icontains=query)
+                    | Q(year=int(query))
+                )
+                .order_by("-created_at")[:25]
+            )
+
+        service_filter = (
+            Q(notes__icontains=query)
+            | Q(title__icontains=query)
+            | Q(workshop__icontains=query)
+            | Q(items__service_type__icontains=query)
+            | Q(items__replacement_part__icontains=query)
+            | Q(items__consumable__icontains=query)
+            | Q(items__note__icontains=query)
+        )
+        if query.isdigit():
+            service_filter |= Q(mileage=int(query))
+        services = (
+            ServiceRecord.objects.select_related("vehicle")
+            .prefetch_related("items")
+            .filter(vehicle_relation_scope)
+            .filter(service_filter)
+            .distinct()
+            .order_by("-date", "-created_at")[:25]
+        )
+
+        quotes = (
+            Quote.objects.select_related("vehicle")
+            .prefetch_related("items")
+            .filter(vehicle_relation_scope)
+            .filter(
+                Q(title__icontains=query)
+                | Q(notes__icontains=query)
+                | Q(items__service_type__icontains=query)
+                | Q(items__replacement_part__icontains=query)
+                | Q(items__consumable__icontains=query)
+                | Q(items__note__icontains=query)
+            )
+            .distinct()
+            .order_by("-date", "-created_at")[:25]
+        )
+
+        reminder_filter = (
+            Q(title__icontains=query)
+            | Q(notes__icontains=query)
+            | Q(vehicle__make__icontains=query)
+            | Q(vehicle__model__icontains=query)
+            | Q(vehicle__license_plate__icontains=query)
+        )
+        if query.isdigit():
+            reminder_filter |= Q(due_mileage=int(query))
+        reminders = (
+            Reminder.objects.select_related("vehicle")
+            .filter(vehicle_relation_scope)
+            .filter(reminder_filter)
+            .order_by("is_done", "due_date")[:25]
+        )
+
+        result_count = sum(
+            (
+                clients.count(),
+                vehicles.count(),
+                services.count(),
+                quotes.count(),
+                reminders.count(),
+            )
+        )
+
+        context["clients"] = clients
+        context["vehicles"] = vehicles
+        context["services"] = services
+        context["quotes"] = quotes
+        context["reminders"] = reminders
+        context["result_count"] = result_count
         return context

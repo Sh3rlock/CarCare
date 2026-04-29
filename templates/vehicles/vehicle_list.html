@@ -3,31 +3,31 @@
 {% block title %}My Vehicles — CarCare{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
   <h2 class="mb-0">Saját járműveim</h2>
+  {% if vehicles %}
+    <div class="flex-grow-1 d-flex justify-content-center align-items-center gap-2">
+      <div class="vehicle-search-wrap w-100" style="max-width: 680px;">
+        <i class="bi bi-search"></i>
+        <input
+          type="search"
+          id="vehicleSearch"
+          class="vehicle-search-box"
+          placeholder="Keresés márka, modell, év, lemez, szín szerint…"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button class="search-clear-btn" id="searchClear" aria-label="Keresés törlése">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <span class="vehicle-search-count" id="searchCount"></span>
+    </div>
+  {% endif %}
   <a href="{% url 'vehicles:create' %}" class="btn btn-primary">+ Jármű hozzáadása</a>
 </div>
 
 {% if vehicles %}
-  <!-- Search bar -->
-  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-    <div class="vehicle-search-wrap flex-grow-1">
-      <i class="bi bi-search"></i>
-      <input
-        type="search"
-        id="vehicleSearch"
-        class="vehicle-search-box"
-        placeholder="Keresés márka, modell, év, lemez, szín szerint…"
-        autocomplete="off"
-        spellcheck="false"
-      >
-      <button class="search-clear-btn" id="searchClear" aria-label="Keresés törlése">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-    <span class="vehicle-search-count" id="searchCount"></span>
-  </div>
-
   <div class="row row-cols-1 row-cols-md-2 row-cols-xl-2 g-4" id="vehicleGrid">
     {% for vehicle in vehicles %}
       <div class="col vehicle-col" data-search="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }} {{ vehicle.license_plate }} {{ vehicle.color }} {{ vehicle.get_fuel_type_display }} {{ vehicle.get_transmission_display }} {{ vehicle.ccm }} {{ vehicle.hp }} {{ vehicle.engine_code }} {{ vehicle.get_doors_display }} {{ vehicle.get_has_ac_display }} {{ vehicle.get_drive_type_display }}">
@@ -95,15 +95,15 @@
 {% block scripts %}
 {% if vehicles %}
 <script>
-(függvény () {
+(() => {
   var input = document.getElementById('vehicleSearch');
   var clearBtn = document.getElementById('searchClear');
   var countEl = document.getElementById('searchCount');
   var emptyEl = document.getElementById('searchEmpty');
   var cols = Array.from(document.querySelectorAll('#vehicleGrid .vehicle-col'));
-  var összesen = cols.length;
+  var total = cols.length;
 
-  függvény normalizál(ok) {
+  function normalize(s) {
     return (s || '').toLowerCase();
   }
 
@@ -111,23 +111,23 @@
     var query = input.value.trim();
     var tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
 
-    clearBtn.classList.toggle('látható', query.length > 0);
+    clearBtn.classList.toggle('visible', query.length > 0);
 
-    var látható = 0;
+    var visible = 0;
     cols.forEach(function (col) {
-      var szénakazal = normalize(col.dataset.search || '');
-      var match = tokens.every(function (t) { return szénakazal.includes(t); });
+      var haystack = normalize(col.dataset.search || '');
+      var match = tokens.every(function (t) { return haystack.includes(t); });
       col.classList.toggle('v-hidden', !match);
-      if (egyezés) látható++;
+      if (match) visible++;
     });
 
     if (tokens.length > 0) {
-      countEl.textContent = látható + ' / ' + összesen;
-    } másik {
+      countEl.textContent = visible + ' / ' + total;
+    } else {
       countEl.textContent = '';
     }
 
-    emptyEl.classList.toggle('látható', látható === 0 && tokens.length > 0);
+    emptyEl.classList.toggle('visible', visible === 0 && tokens.length > 0);
   }
 
   input.addEventListener('input', filter);
@@ -137,6 +137,8 @@
     filter();
     input.focus();
   });
+
+  filter();
 })();
 </script>
 {% endif %}

@@ -78,21 +78,13 @@ class VehicleForm(ConfigurableFormMixin, forms.ModelForm):
                 (self.instance.make if (self.instance and self.instance.pk) else "")
             )
             model_names = get_active_models(make_name, self._garage) if make_name else []
-            # Also load all models so JS can filter client-side
-            from apps.catalog.models import CarModel
-            from django.db.models import Q
-            garage_q = Q(garage__isnull=True)
-            if self._garage is not None:
-                garage_q |= Q(garage=self._garage)
-            all_model_names = list(
-                CarModel.objects.filter(garage_q, is_active=True)
-                .values_list("name", flat=True)
-                .distinct()
-            )
             current = self.instance.model if (self.instance and self.instance.pk) else ""
-            combined = sorted(set(all_model_names + ([current] if current else [])))
-            model_choices = [("", "— Modell kiválasztása —")] + [(m, m) for m in combined]
+            if current and current not in model_names:
+                model_names = sorted(set(model_names + [current]))
+            model_choices = [("", "— Modell kiválasztása —")] + [(m, m) for m in model_names]
             self.fields["model"].widget = forms.Select(choices=model_choices)
+            if not make_name:
+                self.fields["model"].widget.attrs["disabled"] = "disabled"
 
         # ── Catalog-backed Fuel Type choices ──────────────────────
         if "fuel_type" in self.fields:

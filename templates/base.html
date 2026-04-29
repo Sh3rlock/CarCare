@@ -148,30 +148,40 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-(függvény () {
-  var sidebar = document.getElementById('oldalsáv');
+(() => {
+  var sidebar = document.getElementById('sidebar');
   var backdrop = document.getElementById('sidebarBackdrop');
   var toggleBtn = document.getElementById('sidebarToggle');
   var closeBtn = document.getElementById('sidebarClose');
 
-  function openSidebar() { sidebar.classList.add('open'); backdrop.classList.add('show'); document.body.style.overflow = 'rejtett'; }
-  function closeSidebar() { sidebar.classList.remove('open'); backdrop.classList.remove('show'); document.body.style.overflow = ''; }
+  function openSidebar() {
+    if (!sidebar || !backdrop) return;
+    sidebar.classList.add('open');
+    backdrop.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    if (!sidebar || !backdrop) return;
+    sidebar.classList.remove('open');
+    backdrop.classList.remove('show');
+    document.body.style.overflow = '';
+  }
 
-  if (toggleBtn) toggleBtn.addEventListener('kattintás', openSidebar);
-  if (closeBtn) closeBtn.addEventListener('kattintás', closeSidebar);
-  if (backdrop) backdrop.addEventListener('kattintás', closeSidebar);
+  if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+  if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+  if (backdrop) backdrop.addEventListener('click', closeSidebar);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSidebar(); });
 
-  // Aktív navigációs hivatkozás
-  var elérési út = ablak.hely.elérési útnév;
+  // Active navigation link
+  var path = window.location.pathname;
   document.querySelectorAll('.sidebar-link').forEach(function (link) {
     var href = link.getAttribute('href');
-    var pontos = link.hasAttribute('data-exact');
+    var exact = link.hasAttribute('data-exact');
     if (!href || href === '#') return;
-    var aktív = pontos
-      ? (elérési út === href || elérési út === href.replace(/\/$/, ''))
-      : (elérési út === href || path.startsWith(href));
-    if (aktív) link.classList.add('aktív');
+    var active = exact
+      ? (path === href || path === href.replace(/\/$/, ''))
+      : (path === href || path.startsWith(href));
+    if (active) link.classList.add('active');
   });
 })();
 </script>

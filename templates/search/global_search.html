@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Global Search — CarCare{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+  <h2 class="mb-0">Global Search</h2>
+  {% if search_query %}
+    <span class="text-muted small">{{ result_count }} results for "{{ search_query }}"</span>
+  {% endif %}
+</div>
+
+{% if not search_query %}
+  <div class="text-center py-5">
+    <p class="text-muted mb-0">Type into the search box above to search across clients, vehicles, services, quotes, and reminders.</p>
+  </div>
+{% elif result_count == 0 %}
+  <div class="text-center py-5">
+    <p class="text-muted mb-0">No results found for "{{ search_query }}".</p>
+  </div>
+{% else %}
+  {% if clients %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">Clients ({{ clients|length }})</div>
+      <div class="list-group list-group-flush">
+        {% for client in clients %}
+          <a href="{{ client.get_absolute_url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <span>{{ client.full_name|default:"—" }}{% if client.company %} ({{ client.company }}){% endif %}</span>
+            <span class="text-muted small">{{ client.email|default:client.phone|default:"—" }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if vehicles %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">Vehicles ({{ vehicles|length }})</div>
+      <div class="list-group list-group-flush">
+        {% for vehicle in vehicles %}
+          <a href="{{ vehicle.get_absolute_url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <span>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</span>
+            <span class="text-muted small">{{ vehicle.license_plate }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if services %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">Services ({{ services|length }})</div>
+      <div class="list-group list-group-flush">
+        {% for record in services %}
+          <a href="{{ record.get_absolute_url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <span>{{ record.vehicle }} — {{ record.date|date:"d M Y" }}</span>
+            <span class="text-muted small">{% if record.title %}{{ record.title|truncatechars:45 }}{% elif record.notes %}{{ record.notes|truncatechars:45 }}{% else %}—{% endif %}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if quotes %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">Quotes ({{ quotes|length }})</div>
+      <div class="list-group list-group-flush">
+        {% for quote in quotes %}
+          <a href="{{ quote.get_absolute_url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <span>{{ quote.vehicle }} — {{ quote.date|date:"d M Y" }}</span>
+            <span class="text-muted small">{{ quote.title|default:quote.notes|default:"—"|truncatechars:45 }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if reminders %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">Reminders ({{ reminders|length }})</div>
+      <div class="list-group list-group-flush">
+        {% for reminder in reminders %}
+          <a href="{{ reminder.get_absolute_url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <span>{{ reminder.vehicle }} — {{ reminder.title }}</span>
+            <span class="text-muted small">{% if reminder.due_date %}{{ reminder.due_date|date:"d M Y" }}{% elif reminder.due_mileage %}{{ reminder.due_mileage }} km{% else %}—{% endif %}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+{% endblock %}

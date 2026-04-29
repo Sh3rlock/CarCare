@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
 
-from apps.dashboard.views import DashboardView
+from apps.dashboard.views import DashboardView, GlobalSearchView
 from apps.accounts.forms import StyledAuthenticationForm
 from apps.services.views import GlobalServiceHistoryView
 from apps.quotes.views import GlobalQuoteHistoryView
@@ -22,6 +22,7 @@ urlpatterns = [
     ),
     path("accounts/", include("apps.accounts.urls")),
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
+    path("search/", GlobalSearchView.as_view(), name="global_search"),
     path("services/", GlobalServiceHistoryView.as_view(), name="services_history"),
     path("quotes/", GlobalQuoteHistoryView.as_view(), name="quotes_history"),
     path("vehicles/", include("apps.vehicles.urls")),
