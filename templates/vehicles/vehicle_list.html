@@ -33,7 +33,7 @@
       <div class="col vehicle-col" data-search="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }} {{ vehicle.license_plate }} {{ vehicle.color }} {{ vehicle.get_fuel_type_display }} {{ vehicle.get_transmission_display }} {{ vehicle.ccm }} {{ vehicle.hp }} {{ vehicle.engine_code }} {{ vehicle.get_doors_display }} {{ vehicle.get_has_ac_display }} {{ vehicle.get_drive_type_display }}">
         <div class="card h-100 shadow-sm vehicle-card-split">
           <div class="card-body p-0">
-            <div class="vehicle-card-main">
+            <div class="vehicle-card-main vehicle-main-clickable" data-href="{{ vehicle.get_absolute_url }}">
               <div class="vehicle-card-content p-3">
                 <h5 class="card-title mb-1">
                   <a href="{{ vehicle.get_absolute_url }}" class="text-decoration-none text-dark">
@@ -64,14 +64,17 @@
               </div>
             </div>
           </div>
-          <div class="card-footer bg-transparent d-flex gap-2">
-            <a href="{{ vehicle.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Megtekintés</a>
-            <a href="{% url 'vehicles:update' vehicle.pk %}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
-            <a href="{% url 'services:list' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-outline-secondary">Szervizelőzmények</a>
-            <a href="{% url 'services:create' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-primary">+ Szerviz</a>
-            <a href="{% url 'quotes:create' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-primary">+ Árajánlat</a>
-            <a href="{% url 'vehicles:delete' vehicle.pk %}"
-               class="btn btn-sm btn-outline-danger ms-auto">Törlés</a>
+          <div class="card-footer bg-transparent">
+            <div class="vehicle-card-actions-top">
+              <a href="{{ vehicle.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Megtekintés</a>
+              <a href="{% url 'vehicles:update' vehicle.pk %}" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+              <a href="{% url 'services:list' vehicle_pk=vehicle.pk %}" class="btn btn-sm btn-service-history">Szervizelőzmények</a>
+              <a href="{% url 'vehicles:delete' vehicle.pk %}" class="btn btn-sm btn-outline-danger ms-auto">Törlés</a>
+            </div>
+            <div class="vehicle-card-actions-bottom">
+              <a href="{% url 'services:create' vehicle_pk=vehicle.pk %}" class="btn btn-action-large btn-vehicle-cta">+ Szerviz</a>
+              <a href="{% url 'quotes:create' vehicle_pk=vehicle.pk %}" class="btn btn-action-large btn-vehicle-cta">+ Árajánlat</a>
+            </div>
           </div>
         </div>
       </div>
@@ -136,6 +139,14 @@
     input.value = '';
     filter();
     input.focus();
+  });
+
+  Array.from(document.querySelectorAll('.vehicle-main-clickable')).forEach(function (cardMain) {
+    cardMain.addEventListener('click', function (e) {
+      if (e.target.closest('a,button,input,select,textarea')) return;
+      var href = cardMain.dataset.href;
+      if (href) window.location.href = href;
+    });
   });
 
   filter();
