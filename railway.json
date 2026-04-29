@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "DJANGO_SETTINGS_MODULE=config.settings.production python manage.py migrate && DJANGO_SETTINGS_MODULE=config.settings.production python manage.py collectstatic --noinput && gunicorn config.wsgi:application",
+    "startCommand": "DJANGO_SETTINGS_MODULE=config.settings.production python manage.py migrate --noinput && DJANGO_SETTINGS_MODULE=config.settings.production python manage.py collectstatic --noinput && gunicorn config.wsgi:application",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
