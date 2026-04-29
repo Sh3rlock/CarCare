@@ -32,17 +32,17 @@ class Vehicle(models.Model):
 
     AC_YES = "yes"
     AC_NO = "no"
-    AC_CHOICES = [(AC_YES, "Yes"), (AC_NO, "No")]
+    AC_CHOICES = [(AC_YES, "Igen"), (AC_NO, "Nem")]
 
     DRIVE_FWD = "fwd"
     DRIVE_RWD = "rwd"
     DRIVE_4X4 = "4x4"
     DRIVE_AWD = "awd"
     DRIVE_CHOICES = [
-        (DRIVE_FWD, "Front-Wheel Drive (FWD)"),
-        (DRIVE_RWD, "Rear-Wheel Drive (RWD)"),
+        (DRIVE_FWD, "Első"),
+        (DRIVE_RWD, "Hátsó"),
         (DRIVE_4X4, "4x4"),
-        (DRIVE_AWD, "All-Wheel Drive (AWD)"),
+        (DRIVE_AWD, "6x4"),
     ]
 
     owner = models.ForeignKey(

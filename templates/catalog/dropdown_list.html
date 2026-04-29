@@ -19,8 +19,8 @@
 </div>
 
 <ul class="nav nav-tabs mb-4">
-  <li class="nav-item"><a class="nav-link" href="{% url 'catalog:make_list' %}">&amp; Modellek</a></li>
-  <li class="nav-item"><a class="nav-link {% if active_tab == 'dropdowns' %}active{% endif %}" href="{% url 'catalog:dropdown_list' %}">Üzemanyag típus és amp; Terjedés</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'catalog:make_list' %}">Márkák és Modellek</a></li>
+  <li class="nav-item"><a class="nav-link {% if active_tab == 'dropdowns' %}active{% endif %}" href="{% url 'catalog:dropdown_list' %}">Üzemanyag típus és Váltó</a></li>
   <li class="nav-item"><a class="nav-link {% if active_tab == 'service_types' %}active{% endif %}" href="{% url 'catalog:service_types_list' %}">Szolgáltatás típusa</a></li>
   <li class="nav-item"><a class="nav-link {% if active_tab == 'consumables' %}active{% endif %}" href="{% url 'catalog:consumables_list' %}">Fogyóeszközök</a></li>
 </ul>
