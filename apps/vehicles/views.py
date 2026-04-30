@@ -54,9 +54,10 @@ class VehicleDetailView(LoginRequiredMixin, OwnerQuerysetMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["enabled_modules"] = get_enabled_modules()
+        garage = self.object.garage or get_active_garage(self.request)
+        context["enabled_modules"] = get_enabled_modules(garage)
         dynamic_modules = []
-        for dm in get_enabled_dynamic_modules():
+        for dm in get_enabled_dynamic_modules(garage):
             count = dm.records.filter(vehicle=self.object).count()
             dynamic_modules.append({"module": dm, "record_count": count})
         context["dynamic_modules"] = dynamic_modules

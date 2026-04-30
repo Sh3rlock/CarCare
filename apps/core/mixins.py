@@ -134,17 +134,34 @@ class ModuleEnabledMixin:
     """
     View mixin: raises Http404 when the module this view belongs to is disabled.
     Subclasses must set:  module_key = 'mileage'  (matching MODULE_LABELS keys)
+
+    Uses per-garage and global ``ModuleConfig`` via ``get_enabled_modules``. URLs that
+    include ``vehicle_pk`` use that vehicle's garage when set.
     """
 
     module_key = None
 
     def dispatch(self, request, *args, **kwargs):
-        if self.module_key:
-            from apps.formconfig.models import ModuleConfig
-            config = ModuleConfig.objects.filter(module_key=self.module_key, garage__isnull=True).first()
-            if config is not None and not config.is_enabled:
-                from django.http import Http404
-                raise Http404("This module is disabled.")
+        if not self.module_key:
+            return super().dispatch(request, *args, **kwargs)
+
+        from django.http import Http404
+        from django.shortcuts import get_object_or_404
+
+        from apps.formconfig.utils import get_enabled_modules
+        from apps.garages.utils import get_active_garage
+        from apps.vehicles.models import Vehicle
+
+        garage = get_active_garage(request)
+        vehicle_pk = kwargs.get("vehicle_pk")
+        if vehicle_pk:
+            vehicle = get_object_or_404(Vehicle, pk=vehicle_pk, owner=request.user)
+            if vehicle.garage_id:
+                garage = vehicle.garage
+
+        if self.module_key not in get_enabled_modules(garage):
+            raise Http404("This module is disabled.")
+
         return super().dispatch(request, *args, **kwargs)
 
 

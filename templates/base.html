@@ -47,14 +47,18 @@
       <i class="bi bi-people-fill"></i>
       <span>Ügyfelek</span>
     </a>
+    {% if 'services' in enabled_modules %}
     <a href="{% url 'services_history' %}" class="sidebar-link">
       <i class="bi bi-wrench-adjustable-circle-fill"></i>
       <span>Szervizelőzmények</span>
     </a>
+    {% endif %}
+    {% if 'quotes' in enabled_modules %}
     <a href="{% url 'quotes_history' %}" class="sidebar-link">
       <i class="bi bi-receipt-cutoff"></i>
       <span>Idézet történelem</span>
     </a>
+    {% endif %}
 
     <div class="sidebar-divider"></div>
     <div class="sidebar-section">fiók</div>

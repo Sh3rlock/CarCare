@@ -41,5 +41,7 @@ urlpatterns = [
     path("garages/", include("apps.garages.urls")),
 ]
 
-if settings.DEBUG:
+# User uploads: served here in development (DEBUG) or when SERVE_MEDIA is True.
+# In production, prefer nginx (or similar) to alias /media/ to MEDIA_ROOT; set SERVE_MEDIA=0 then.
+if settings.DEBUG or getattr(settings, "SERVE_MEDIA", False):
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
