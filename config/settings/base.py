@@ -125,6 +125,9 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # Media files (user uploads)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# When True, urlpatterns mount /media/ via django.views.static.serve (see config/urls.py).
+# Set SERVE_MEDIA=0 when nginx or object storage serves uploads instead.
+SERVE_MEDIA = os.environ.get("SERVE_MEDIA", "true").lower() not in ("0", "false", "no", "off")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

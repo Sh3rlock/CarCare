@@ -1,8 +1,11 @@
+import re
+from urllib.parse import urlparse
+
 from django.contrib import admin
 from django.contrib.auth.views import LoginView
 from django.conf import settings
-from django.conf.urls.static import static
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.views.static import serve
 
 from apps.dashboard.views import DashboardView, GlobalSearchView, HelpView
 from apps.accounts.forms import StyledAuthenticationForm
@@ -41,7 +44,22 @@ urlpatterns = [
     path("garages/", include("apps.garages.urls")),
 ]
 
-# User uploads: served here in development (DEBUG) or when SERVE_MEDIA is True.
-# In production, prefer nginx (or similar) to alias /media/ to MEDIA_ROOT; set SERVE_MEDIA=0 then.
-if settings.DEBUG or getattr(settings, "SERVE_MEDIA", False):
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# User uploads. ``django.conf.urls.static.static()`` intentionally returns NO patterns when
+# DEBUG is False (see Django docs), so ``static(MEDIA_URL, …)`` never mounted /media/ in
+# production. Use an explicit ``serve`` route when serving files from Django.
+_serve_media = settings.DEBUG or getattr(settings, "SERVE_MEDIA", True)
+_media_url = settings.MEDIA_URL or ""
+_parsed_media = urlparse(_media_url)
+# Skip local mount when MEDIA_URL is absolute (S3, CDN, or //host/…).
+if _serve_media and _media_url and not (
+    _parsed_media.scheme in ("http", "https") or _parsed_media.netloc
+):
+    prefix = _media_url.lstrip("/")
+    if prefix:
+        urlpatterns += [
+            re_path(
+                r"^%s(?P<path>.*)$" % re.escape(prefix),
+                serve,
+                {"document_root": str(settings.MEDIA_ROOT)},
+            ),
+        ]

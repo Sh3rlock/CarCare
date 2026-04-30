@@ -2,10 +2,6 @@ from .base import *  # noqa: F401, F403
 
 DEBUG = False
 
-# Serve /media/ (uploads) through Django. Set SERVE_MEDIA=0 when your reverse proxy
-# serves MEDIA_ROOT at MEDIA_URL (recommended at higher traffic).
-SERVE_MEDIA = os.environ.get("SERVE_MEDIA", "true").lower() not in ("0", "false", "no", "off")
-
 ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")  # noqa: F405
 CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if os.environ.get("CSRF_TRUSTED_ORIGINS") else []  # noqa: F405
 
